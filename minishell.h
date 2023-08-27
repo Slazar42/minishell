@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:15:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/08/27 14:30:33 by slazar           ###   ########.fr       */
+/*   Updated: 2023/08/27 18:32:42 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ int ft_strlen(char *str);
 void add_node_to_lexer(t_list *lx,char *word,enum e_token token);
 void take_token(char *str,int *i,t_list *lx);
 int is_alphabet(char c);
+int is_digits(char c);
 void take_word(char *str, int *i, t_list *lx);
 void lexer(char *str, t_list *lx);
 void ft_initialisation(t_list *lx);
@@ -89,7 +90,6 @@ char *get_var_name(char *env);
 char *get_var_value(char *env);
 void ft_variables(t_env **env,char **envirement);
 void print_env(t_env *env);
-
 
 // typedef struct pars
 // {

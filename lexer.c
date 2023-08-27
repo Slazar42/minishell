@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 10:09:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/08/27 14:31:42 by slazar           ###   ########.fr       */
+/*   Updated: 2023/08/27 18:33:45 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,12 @@ int if_token(char c)
 		return (0);
 	return 1;
 }
+int is_digits(char c)
+{
+	if (c >= '0' && c <= '9')
+		return 0;
+	return(1);
+}
 
 int ft_strlen(char *str)
 {
@@ -75,10 +81,25 @@ void add_node_to_lexer(t_list *lx,char *word,enum e_token token)
 	lx->tail = new;
 	lx->size += 1;
 }
-
+void take_env(char *str,int *i,t_list *lx)
+{
+	int start;
+	char *var;
+	start = *i;
+	(*i)++;
+	while(!is_digits(str[*i]) || !is_alphabet(str[*i]) || str[*i] == '_')
+		(*i)++;
+	var = ft_strdup(str,start,(*i)-1);
+	add_node_to_lexer(lx,var,ENV);
+}
 void take_token(char *str,int *i,t_list *lx)
 {
 	char *token;
+	if(str[*i] == ENV)
+	{
+		take_env(str,i,lx);
+		return;
+	}
 	token = ft_strdup(str,*i,*i);
 	if (str[*i] == WHITE_SPACE)
 		add_node_to_lexer(lx,token,WHITE_SPACE);
@@ -90,8 +111,6 @@ void take_token(char *str,int *i,t_list *lx)
 		add_node_to_lexer(lx,token,DOUBLE_QUOTE);
 	else if (str[*i] == ESCAPE)
 		add_node_to_lexer(lx,token,ESCAPE);
-	else if (str[*i] == ENV)
-		add_node_to_lexer(lx,token,ENV);
 	else if (str[*i] == PIPE_LINE)
 		add_node_to_lexer(lx,token,PIPE_LINE);
 	else if (str[*i] == REDIR_IN && str[(*i) + 1] != REDIR_IN && str[(*i) - 1] != REDIR_IN)
@@ -99,9 +118,15 @@ void take_token(char *str,int *i,t_list *lx)
 	else if (str[*i] == REDIR_OUT && str[(*i) + 1] != REDIR_OUT && str[(*i) - 1] != REDIR_OUT)
 		add_node_to_lexer(lx,token,REDIR_OUT);
 	else if (str[*i] == REDIR_OUT && str[(*i) + 1] == REDIR_OUT)
+	{
 		add_node_to_lexer(lx,">>",D_REDIR_OUT);
+		(*i)++;
+	}
 	else if (str[*i] == REDIR_IN && str[(*i) + 1] == REDIR_IN)
+	{
 		add_node_to_lexer(lx,"<<",HERE_DOC);
+		(*i)++;
+	}
 	(*i)++;
 }
 
