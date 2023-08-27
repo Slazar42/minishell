@@ -1,6 +1,6 @@
 NAME = minishell
 
-SRCS = minishell.c
+SRCS = minishell.c lexer.c
 
 CC = gcc
 

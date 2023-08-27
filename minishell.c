@@ -6,18 +6,12 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:11:51 by slazar            #+#    #+#             */
-/*   Updated: 2023/08/23 20:53:01 by slazar           ###   ########.fr       */
+/*   Updated: 2023/08/27 14:19:40 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include"minishell.h"
-int ft_strlen(char *str)
-{
-    int i;
-    i=-1;
-    while(str[++i]);
-    return(i);
-}
+
 char *get_var_name(char *env)
 {
     int i;
@@ -92,22 +86,5 @@ void print_env(t_env *env)
     
 }
 
-int main(int ac,char **av,char **envirement)
-{
-    (void) ac;
-    (void) av;
-    t_env *env;
-    ft_variables(&env,envirement);
-    char *input;
-    while(1)
-    {
-        input  = readline("minshell  : ");
-        printf("Input = %s\n",input);
-        if(!strcmp(input,"env"))
-            print_env(env);
-        // LEXER
-    }
-
-}
 
 
