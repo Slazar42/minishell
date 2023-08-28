@@ -6,20 +6,19 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 10:09:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/08/27 18:33:45 by slazar           ###   ########.fr       */
+/*   Updated: 2023/08/28 13:43:02 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include"minishell.h"
 
-char *ft_strdup(char *str,int start,int finish)
+char *ft_strdup_2(char *str,int start,int finish)
 {
 	int i;
 	char *dup;
 	i = 0;
 	while (str && str[start + i] && (start +i)<= finish)
 		i++;
-	// printf("ww %s\n",)
 	dup = malloc(sizeof(char)*(i + 1));
 	dup[i] = '\0';
 	i = 0;
@@ -56,14 +55,7 @@ int is_digits(char c)
 	return(1);
 }
 
-int ft_strlen(char *str)
-{
-    int i;
-    i=-1;
-    while(str && str[++i]);
-    return(i);
-}
-void add_node_to_lexer(t_list *lx,char *word,enum e_token token)
+void add_node_to_lexer(t_nodes *lx,char *word,enum e_token token)
 {
 	t_elem *new;
 	new = malloc(sizeof(t_elem));
@@ -81,7 +73,7 @@ void add_node_to_lexer(t_list *lx,char *word,enum e_token token)
 	lx->tail = new;
 	lx->size += 1;
 }
-void take_env(char *str,int *i,t_list *lx)
+void take_env(char *str,int *i,t_nodes *lx)
 {
 	int start;
 	char *var;
@@ -89,10 +81,10 @@ void take_env(char *str,int *i,t_list *lx)
 	(*i)++;
 	while(!is_digits(str[*i]) || !is_alphabet(str[*i]) || str[*i] == '_')
 		(*i)++;
-	var = ft_strdup(str,start,(*i)-1);
+	var = ft_strdup_2(str,start,(*i)-1);
 	add_node_to_lexer(lx,var,ENV);
 }
-void take_token(char *str,int *i,t_list *lx)
+void take_token(char *str,int *i,t_nodes *lx)
 {
 	char *token;
 	if(str[*i] == ENV)
@@ -100,7 +92,7 @@ void take_token(char *str,int *i,t_list *lx)
 		take_env(str,i,lx);
 		return;
 	}
-	token = ft_strdup(str,*i,*i);
+	token = ft_strdup_2(str,*i,*i);
 	if (str[*i] == WHITE_SPACE)
 		add_node_to_lexer(lx,token,WHITE_SPACE);
 	else if (str[*i] == NEW_LINE)
@@ -136,17 +128,17 @@ int is_alphabet(char c)
 		return 0;
 	return(1);
 }
-void take_word(char *str, int *i, t_list *lx)
+void take_word(char *str, int *i, t_nodes *lx)
 {
 	int start;
 	char *word;
 	start = *i;
 	while ((str[*i] >= 'a' && str[*i] <= 'z' ) || ( str[*i] >= 'A' && str[*i] <= 'Z'))
 		(*i)++;
-	word = ft_strdup(str,start,*i-1);
+	word = ft_strdup_2(str,start,*i-1);
 	add_node_to_lexer(lx,word,WORD);
 }
-void lexer(char *str, t_list *lx)
+void lexer(char *str, t_nodes *lx)
 {
 	int i = 0;
 
@@ -160,7 +152,7 @@ void lexer(char *str, t_list *lx)
 			i++;
 	}
 }
-void ft_initialisation(t_list *lx)
+void ft_initialisation(t_nodes *lx)
 {
 	lx->head =NULL;
 	lx->tail=NULL;
@@ -227,7 +219,7 @@ int main(int ac,char **av,char **envirement)
     (void) av;
     t_env *env;
     ft_variables(&env,envirement);
-	t_list lx;
+	t_nodes lx;
 	char *line;
 	while (1)
 	{

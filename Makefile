@@ -1,21 +1,29 @@
 NAME = minishell
 
-SRCS = minishell.c lexer.c
+SRCS =  minishell.c lexer.c
 
 CC = gcc
 
 CFLAGS = -Wall -Werror -Wextra 
 
-OBJS = ${SRCS:.c=.o}
+OBJS = ${SRCS:.c=.o} $(LIBFT)
 
 all : $(NAME)
+LIBFT = libft/libft.a
+$(LIBFT):
+	make -C libft
+libft: $(LIBFT)
+libft_clean:
+	make fclean -C libft
+libft_re: libft_clean libft
 
-$(NAME) : $(OBJS)
-		$(CC) $(FLAGS) $(OBJS) -o $(NAME) -lreadline
+$(NAME) : $(OBJS) $(LIBFT) minishell.h
+		$(CC) $(FLAGS) $(OBJS)  -o $(NAME) -I $(LIBFT) -lreadline
 clean :
 	rm -rf $(OBJS)
 
-fclean : clean
+fclean : clean libft_clean
 	rm -rf $(NAME)
 
 re : fclean all
+.PHONY = libft libft_clean libft_re
