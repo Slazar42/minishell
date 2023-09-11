@@ -6,16 +6,16 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 10:09:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/09 13:49:52 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/11 21:56:11 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include"minishell.h"
 
-void add_node_to_lexer(t_nodes *lx,char *word,enum e_token token,enum e_state state)
+void add_node_to_lexer(t_lexer *lx,char *word,enum e_token token,enum e_state state)
 {
-	t_elem *new;
-	new = malloc(sizeof(t_elem));
+	t_node *new;
+	new = malloc(sizeof(t_node));
 	if (!new)
 		return;
 	new->content = word;
@@ -32,7 +32,7 @@ void add_node_to_lexer(t_nodes *lx,char *word,enum e_token token,enum e_state st
 	lx->size += 1;
 }
 
-void take_token(char *str,int *i,t_nodes *lx)
+void take_token(char *str,int *i,t_lexer *lx)
 {
 	char *token;
 	if(str[*i] == ENV)
@@ -78,7 +78,7 @@ int is_alphabet(char c)
 		return 0;
 	return(1);
 }
-void take_word(char *str, int *i, t_nodes *lx)
+void take_word(char *str, int *i, t_lexer *lx)
 {
 	int start;
 	char *word;
@@ -88,9 +88,9 @@ void take_word(char *str, int *i, t_nodes *lx)
 	word = ft_strdup_2(str,start,*i-1);
 	add_node_to_lexer(lx,word,WORD,GENERAL);
 }
-void	give_state(t_nodes *lx)
+void	give_state(t_lexer *lx)
 {
-	t_elem *cur;
+	t_node *cur;
 	cur = lx->head;
 	while (cur)
 	{
@@ -115,9 +115,9 @@ void	give_state(t_nodes *lx)
 		cur = cur->next;
 	}
 }
-void	free_list(t_nodes *lst)
+void	free_list(t_lexer *lst)
 {
-	t_elem	*tmp;
+	t_node	*tmp;
 
 	tmp = lst->head;
 	while (tmp)
@@ -128,7 +128,86 @@ void	free_list(t_nodes *lst)
 	}
 	free(lst);
 }
-void lexer(char *str, t_nodes *lx)
+
+int	if_redirection(enum e_token type)
+{
+	return (type == REDIR_IN || type == REDIR_OUT
+		|| type == D_REDIR_OUT || type == HERE_DOC);
+}
+t_node *skip_spaces(t_node *elem, char direction)
+{
+	while (!elem && ( elem->type == WHITE_SPACE || elem->type == TAB))
+	{
+		if ( direction == 'l')
+			elem = elem->prev;
+		else if (direction == 'r')
+			elem = elem->next;
+	}
+	return(elem);
+}
+int pipe_err(t_node *elem)
+{
+	t_node *next;
+	t_node *prev;
+
+	next = skip_spaces(elem->next,'r');
+	prev = skip_spaces(elem->next,'l');
+	if(!next || !prev || next->type != WORD || prev->type != WORD || !if_redirection(next->type))
+		return (1);
+	return(0);
+}
+int	ft_perr(char *str, char *token)
+{
+	write(1, str, ft_strlen(str));
+	if (token)
+		write(1, token, ft_strlen(token));
+	write(1, "\n", 1);
+	return (1);
+}
+char	*get_token(enum e_token type)
+{
+	if (type == HERE_DOC)
+		return ("<<");
+	else if (type == REDIR_OUT)
+		return (">");
+	else if (type == D_REDIR_OUT)
+		return (">>");
+	else if (type == REDIR_IN)
+		return ("<");
+	return (".");
+}
+
+int	syntax_error(t_lexer *lst)
+{
+	t_node	*cur;
+
+	cur = lst->head;
+
+	while (cur)
+	{
+		if (cur->type == PIPE_LINE)
+		{
+			if (pipe_err(cur))
+				return (ft_perr("minishell: syntax error near "
+						"unexpected token `|'", 0));
+		}
+		// else if (if_redirection(cur->type))
+		// {
+		// 	if (redir_err(cur))
+		// 		return (ft_perr("minishell: syntax error near"
+		// 				"unexpected token ", get_token(cur->type)));
+		// }
+		// else if (cur->type == DOUBLE_QUOTE || cur->type == QOUTE)
+		// {
+		// 	if (!check_unclosed_quotes(&cur, cur->type))
+		// 		return (1);
+		// }
+		cur = cur->next;
+	}
+	return (0);
+}
+
+void lexer(char *str, t_lexer *lx)
 {
 	int i = 0;
 
@@ -142,16 +221,17 @@ void lexer(char *str, t_nodes *lx)
 			i++;
 	}
 	give_state(lx);
+	syntax_error(lx);
 }
-void ft_initialisation(t_nodes *lx)
+void ft_initialisation(t_lexer *lx)
 {
 	lx->head =NULL;
 	lx->tail=NULL;
 	lx->size = 0;
 }
-void ft_print_lexer(t_elem **head)
+void ft_print_lexer(t_node **head)
 {
-    t_elem *cur = *head;
+    t_node *cur = *head;
     char general[] = "GENERAL";
     char in_s_quote[] = "IN_S_QUOTE";
     char in_d_quote[] = "IN_D_QUOTE";

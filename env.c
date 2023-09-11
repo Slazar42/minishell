@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:11:51 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/09 14:04:26 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/11 20:17:52 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ void print_env(t_env *env)
     }
 }
 
-void take_env(char *str,int *i,t_nodes *lx)
+void take_env(char *str,int *i,t_lexer *lx)
 {
 	int start;
 	char *var;

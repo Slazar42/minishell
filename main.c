@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 19:24:41 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/11 16:43:26 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/11 20:17:52 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ int main(int __unused ac,char **av,char **envirement)
     (void) av;
     t_env *env;
     ft_variables(&env,envirement);
-	t_nodes lx;
+	t_lexer lx;
 	char *line;
 
 	while (1)

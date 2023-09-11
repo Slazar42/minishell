@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:15:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/09 13:43:32 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/11 21:56:29 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,37 +36,37 @@ enum e_state
 
 enum e_token
 {
-	WORD = -1,
+	HERE_DOC,
+	D_REDIR_OUT,
+	WORD,
 	WHITE_SPACE = ' ',
 	TAB = '\t',
 	NEW_LINE = '\n',
-	QOUTE = '\'',
 	DOUBLE_QUOTE = '\"',
-	ESCAPE = '\\',
 	ENV = '$',
+	QOUTE = '\'',
+	ESCAPE = '\\',
 	PIPE_LINE = '|',
-	REDIR_IN = '<',
 	REDIR_OUT = '>',
-	HERE_DOC,
-	D_REDIR_OUT,
+	REDIR_IN = '<',
 };
 
-typedef struct s_elem
+typedef struct t_node
 {
 	char			*content;
-	int				len;
 	enum e_token	type;
 	enum e_state	state;
-	struct s_elem	*next;
-	struct s_elem	*prev;
-}	t_elem;
+	int				len;
+	struct t_node	*prev;
+	struct t_node	*next;
+}	t_node;
 
-typedef struct s_nodes
+typedef struct s_lexer
 {
-	t_elem	*head;
-	t_elem	*tail;
+	t_node	*head;
+	t_node	*tail;
 	int		  size;
-}	t_nodes;
+}	t_lexer;
 
 
 typedef struct envirement
@@ -81,18 +81,18 @@ typedef struct envirement
 char *ft_strdup_2(char *str,int start,int finish);
 int ft_strcmp(int *s1,int *s2);
 int if_token(char c);
-void ft_initialisation(t_nodes *lx);
+void ft_initialisation(t_lexer *lx);
 /*-----------------lexer-------------------*/
-void add_node_to_lexer(t_nodes *lx,char *word,enum e_token token,enum e_state state);
-void take_token(char *str,int *i,t_nodes *lx);
+void add_node_to_lexer(t_lexer *lx,char *word,enum e_token token,enum e_state state);
+void take_token(char *str,int *i,t_lexer *lx);
 int is_alphabet(char c);
 int is_digits(char c);
-void take_word(char *str, int *i, t_nodes *lx);
-void lexer(char *str, t_nodes *lx);
-void ft_print_lexer(t_elem **head);
-void	free_list(t_nodes *lst);
+void take_word(char *str, int *i, t_lexer *lx);
+void lexer(char *str, t_lexer *lx);
+void ft_print_lexer(t_node **head);
+void	free_list(t_lexer *lst);
 /*-----------ENVIRENEMENT-------------------*/
-void take_env(char *str,int *i,t_nodes *lx);
+void take_env(char *str,int *i,t_lexer *lx);
 char *get_var_name(char *env);
 char *get_var_value(char *env);
 void ft_variables(t_env **env,char **envirement);
