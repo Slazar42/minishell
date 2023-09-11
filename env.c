@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   minishell.c                                        :+:      :+:    :+:   */
+/*   env.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:11:51 by slazar            #+#    #+#             */
-/*   Updated: 2023/08/27 14:19:40 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/09 14:04:26 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,8 +83,16 @@ void print_env(t_env *env)
         printf("%s=%s\n",env->name,env->value);
         env = env->next;
     }
-    
 }
 
-
-
+void take_env(char *str,int *i,t_nodes *lx)
+{
+	int start;
+	char *var;
+	start = *i;
+	(*i)++;
+	while(!is_digits(str[*i]) || !is_alphabet(str[*i]) || str[*i] == '_')
+		(*i)++;
+	var = ft_strdup_2(str,start,(*i)-1);
+	add_node_to_lexer(lx,var,ENV,GENERAL);
+}
