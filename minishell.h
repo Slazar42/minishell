@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:15:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/11 21:56:29 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/11 22:02:39 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,6 @@ typedef struct envirement
     char *value;
     struct envirement *next ;
 }t_env;
-
 
 /*-----------------utils-------------------*/
 char *ft_strdup_2(char *str,int start,int finish);

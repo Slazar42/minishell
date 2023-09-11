@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 10:09:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/11 21:56:11 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/11 22:23:04 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,7 +152,7 @@ int pipe_err(t_node *elem)
 
 	next = skip_spaces(elem->next,'r');
 	prev = skip_spaces(elem->next,'l');
-	if(!next || !prev || next->type != WORD || prev->type != WORD || !if_redirection(next->type))
+	if(!next || !prev || (next->type != WORD && prev->type != WORD && !if_redirection(next->type)))
 		return (1);
 	return(0);
 }
