@@ -18,7 +18,7 @@ libft_clean:
 libft_re: libft_clean libft
 
 $(NAME) : $(OBJS) $(LIBFT) minishell.h
-		$(CC) $(FLAGS) $(OBJS)  -o $(NAME) -I $(LIBFT) -lreadline
+		$(CC) -fsanitize=address -g $(FLAGS) $(OBJS)  -o $(NAME) -I $(LIBFT) -lreadline
 clean :
 	rm -rf $(OBJS)
 

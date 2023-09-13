@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:15:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/11 22:02:39 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/13 23:02:12 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,12 @@ typedef struct envirement
     struct envirement *next ;
 }t_env;
 
+typedef struct s_command
+{
+    char *cmd;
+    struct s_command *next ;
+}t_cmd;
+
 /*-----------------utils-------------------*/
 char *ft_strdup_2(char *str,int start,int finish);
 int ft_strcmp(int *s1,int *s2);
@@ -87,7 +93,7 @@ void take_token(char *str,int *i,t_lexer *lx);
 int is_alphabet(char c);
 int is_digits(char c);
 void take_word(char *str, int *i, t_lexer *lx);
-void lexer(char *str, t_lexer *lx);
+int lexer(char *str, t_lexer *lx);
 void ft_print_lexer(t_node **head);
 void	free_list(t_lexer *lst);
 /*-----------ENVIRENEMENT-------------------*/

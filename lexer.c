@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 10:09:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/11 22:23:04 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/13 23:23:11 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 void add_node_to_lexer(t_lexer *lx,char *word,enum e_token token,enum e_state state)
 {
 	t_node *new;
+	
 	new = malloc(sizeof(t_node));
 	if (!new)
 		return;
@@ -22,13 +23,16 @@ void add_node_to_lexer(t_lexer *lx,char *word,enum e_token token,enum e_state st
 	new->type = token ;
 	new->len = ft_strlen(word);
 	new->next = NULL;
+	new->prev = NULL;
 	new->state = state;
-	new->prev = lx->tail;
+	if (lx->tail)
+	{
+		lx->tail->next = new;
+		new->prev = lx->tail;
+	}
+	lx->tail = new;
 	if(!lx->head)
 		lx->head = new;
-	if(lx->tail)
-		lx->tail->next = new;
-	lx->tail = new;
 	lx->size += 1;
 }
 
@@ -92,7 +96,7 @@ void	give_state(t_lexer *lx)
 {
 	t_node *cur;
 	cur = lx->head;
-	while (cur)
+	while (cur && cur->next)
 	{
 		if(cur->type == DOUBLE_QUOTE && cur->next)
 		{
@@ -119,6 +123,8 @@ void	free_list(t_lexer *lst)
 {
 	t_node	*tmp;
 
+	if(!lst)
+		return;
 	tmp = lst->head;
 	while (tmp)
 	{
@@ -126,23 +132,29 @@ void	free_list(t_lexer *lst)
 		free(tmp);
 		tmp = tmp->next;
 	}
-	free(lst);
 }
 
 int	if_redirection(enum e_token type)
 {
-	return (type == REDIR_IN || type == REDIR_OUT
-		|| type == D_REDIR_OUT || type == HERE_DOC);
+	if (type == REDIR_IN || type == REDIR_OUT
+		|| type == D_REDIR_OUT || type == HERE_DOC)
+			return(1);
+	return(0);
 }
+
 t_node *skip_spaces(t_node *elem, char direction)
 {
-	while (!elem && ( elem->type == WHITE_SPACE || elem->type == TAB))
+	while (elem && ( elem->type == WHITE_SPACE || elem->type == TAB))
 	{
 		if ( direction == 'l')
 			elem = elem->prev;
 		else if (direction == 'r')
 			elem = elem->next;
 	}
+	// if (direction == 'l')
+	// 	printf("content l |%s|\n", elem->content);
+	// if (direction == 'r')
+	// 	printf("content r |%s|\n", elem->content);
 	return(elem);
 }
 int pipe_err(t_node *elem)
@@ -151,8 +163,8 @@ int pipe_err(t_node *elem)
 	t_node *prev;
 
 	next = skip_spaces(elem->next,'r');
-	prev = skip_spaces(elem->next,'l');
-	if(!next || !prev || (next->type != WORD && prev->type != WORD && !if_redirection(next->type)))
+	prev = skip_spaces(elem->prev,'l');
+	if(!next || !prev || prev->type != WORD || (next->type != WORD && if_redirection(next->type) == 0))
 		return (1);
 	return(0);
 }
@@ -176,6 +188,30 @@ char	*get_token(enum e_token type)
 		return ("<");
 	return (".");
 }
+int	redir_err(t_node *ptr)
+{
+	t_node	*nxt;
+
+	nxt = skip_spaces(ptr->next, 'r');
+	if(nxt)
+	printf("nxt content |%s| \n",nxt->content);
+	if (!nxt || (nxt->type != WORD && nxt->type != ENV))
+		return (1);
+	return (0);
+}
+t_node	*check_quotes(t_node **node, enum e_token quote)
+{
+	while (*node)
+	{
+		*node = (*node)->next;
+		if (!*node || (*node)->type == quote)
+			break ;
+	}
+	if (!*node)
+		write(1, "minishell: unclosed quotes detected.\n",
+			ft_strlen("minishell: unclosed quotes detected.\n"));
+	return (*node);
+}
 
 int	syntax_error(t_lexer *lst)
 {
@@ -191,23 +227,37 @@ int	syntax_error(t_lexer *lst)
 				return (ft_perr("minishell: syntax error near "
 						"unexpected token `|'", 0));
 		}
-		// else if (if_redirection(cur->type))
-		// {
-		// 	if (redir_err(cur))
-		// 		return (ft_perr("minishell: syntax error near"
-		// 				"unexpected token ", get_token(cur->type)));
-		// }
-		// else if (cur->type == DOUBLE_QUOTE || cur->type == QOUTE)
-		// {
-		// 	if (!check_unclosed_quotes(&cur, cur->type))
-		// 		return (1);
-		// }
+		else if (if_redirection(cur->type))
+		{
+			if (redir_err(cur))
+				return (ft_perr("minishell: syntax error near "
+						"unexpected token ", get_token(cur->type)));
+		}
+		else if (cur->type == DOUBLE_QUOTE || cur->type == QOUTE)
+		{
+			if (!check_quotes(&cur, cur->type))
+				return (1);
+		}
 		cur = cur->next;
 	}
 	return (0);
 }
+void command_between_pipes(t_lexer *lx)
+{
+	t_node *cur;
+	char *cmd;
 
-void lexer(char *str, t_lexer *lx)
+	cur = lx->head;
+	
+	while (cur)
+	{
+		if(cur->type )
+		cur = cur->next;
+	}
+	
+	
+}
+int lexer(char *str, t_lexer *lx)
 {
 	int i = 0;
 
@@ -221,7 +271,9 @@ void lexer(char *str, t_lexer *lx)
 			i++;
 	}
 	give_state(lx);
-	syntax_error(lx);
+	if (syntax_error(lx))
+		return (1);
+	command_between_pipes(lx);
 }
 void ft_initialisation(t_lexer *lx)
 {

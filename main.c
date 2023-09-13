@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 19:24:41 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/11 20:17:52 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/13 22:55:19 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,13 +49,15 @@ int main(int __unused ac,char **av,char **envirement)
 			printf("Error\n");
 		else if (check_space(line) == 0)
 			continue;
-		else if(!strcmp(line,"env"))
+		else if(!ft_strcmp(line,"env"))
             print_env(env);
 		else
 		{
 			add_history(line);
-			lexer(line, &lx);
+			if(lexer(line, &lx))
+				continue;
 			ft_print_lexer(&lx.head);
+			// free_list(&lx);
 		}
 	}
 	if(line)
