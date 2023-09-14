@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 10:09:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/14 17:31:07 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/14 23:55:51 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,23 +100,30 @@ void	give_state(t_lexer *lx)
 	{
 		if(cur->type == DOUBLE_QUOTE && cur->next)
 		{
+			cur->state = IN_DQUOTE;
 			cur = cur->next;
 			while (cur && cur->type != DOUBLE_QUOTE)
 			{
 				cur->state = IN_DQUOTE;
 				cur = cur->next;
 			}
+			if(cur)
+				cur->state = IN_DQUOTE;
 		}
 		else if(cur->type == QOUTE && cur->next)
 		{
+			cur->state = IN_SQUOTE;
 			cur = cur->next;
 			while (cur && cur->type != QOUTE)
 			{
 				cur->state = IN_SQUOTE;
 				cur = cur->next;
 			}
+			if(cur)
+				cur->state = IN_SQUOTE;
 		}
-		cur = cur->next;
+		if(cur)
+			cur = cur->next;
 	}
 }
 void	free_list(t_lexer *lst)
@@ -238,23 +245,39 @@ int	syntax_error(t_lexer *lst)
 	}
 	return (0);
 }
-
-void clean_quotes(t_lexer *lx)
+// void 	join_quotes_and_free(t_node *cur)
+// {
+// 	new_cont = ft_strjoin(cur->content,cur->next->content);
+	
+// }
+void take_in_dq(t_node **cur)
+{
+	char *new_cont;
+	new_cont = NULL;
+	t_node *tmp;
+	tmp = *cur;
+	while ((*cur) && (*cur)->state == IN_DQUOTE)
+	{
+		new_cont = ft_strjoin(new_cont,(*cur)->content);
+		(*cur) = (*cur)->next;
+	}
+	printf("joijuu : |%s|\n",new_cont);
+}
+void join_quotes(t_lexer *lx)
 {
 	t_node *cur;
 	cur = lx->head;
-	
+
 	while (cur)
 	{
-		if(((cur)->type == QOUTE || (cur)->type == DOUBLE_QUOTE))
-			{
-				if(cur->prev && cur->next)
-					(cur)->prev->next = (cur)->next;
-				free(cur);
-			}
-		(cur) = (cur)->next;
+		if (cur->state == IN_DQUOTE)
+			take_in_dq(&cur);
+		else
+			cur = cur->next;
+		// if (cur->state == IN_SQUOTE)
+		// 	take_in_dq(&cur);
 	}
-	
+	ft_print_lexer(&lx->head);
 }
 // void join_in_quotes(t_lexer *lx)
 // {
@@ -276,7 +299,6 @@ int lexer(char *str, t_lexer *lx)
 	give_state(lx);
 	if (syntax_error(lx))
 		return (1);
-	clean_quotes(lx);
 	// join_in_quotes(lx);
 	return(0);
 }
@@ -307,7 +329,7 @@ void ft_print_lexer(t_node **head)
         else if (cur->state == GENERAL)
             state = general;
 
-        printf("|%-17s|%3d|%-15s|", cur->content, cur->len, state);
+        printf("|%-17s|%3d|%-15s|", cur->content, 0/*cur->len*/, state);
 
         if (cur->type == WORD)
             printf("      WORD    |\n");

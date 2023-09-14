@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 19:24:41 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/14 17:37:28 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/14 22:15:41 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,11 @@ int main(int __unused ac,char **av,char **envirement)
 			add_history(line);
 			if(lexer(line, &lx))
 				continue;
-			ft_print_lexer(&lx.head);
+			else{
+				ft_print_lexer(&lx.head);
+				join_quotes(&lx);
+				ft_print_lexer(&lx.head);}
+
 			// free_list(&lx);
 		}
 	}

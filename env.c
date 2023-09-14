@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:11:51 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/11 20:17:52 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/14 18:19:05 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,33 +53,34 @@ char *get_var_value(char *env)
 void ft_variables(t_env **env,char **envirement)
 {
     int i;
-    t_env *node;
-    t_env *ptr;
+    t_env *new;
+    t_env *head;
     i = 0;
     
     while (envirement[i])
     {
-        node = malloc(sizeof(t_env));
-        node->value = get_var_value(envirement[i]);
-        node->name = get_var_name(envirement[i]);
+        new = malloc(sizeof(t_env));
+        new->value = get_var_value(envirement[i]);
+        new->name = get_var_name(envirement[i]);
+        new->next = NULL;
         if(!*env)
         {
-            *env = node;
-            ptr = node;
+            *env = new;
+            head = new;
         }
         else
         {
-            (*env)->next = node;
+            (*env)->next = new;
             *env = (*env)->next;
         }
         i++;
     }
-    *env = ptr;
+    *env = head;
 }
 void print_env(t_env *env)
 {
     while (env)
-    {
+    {   
         printf("%s=%s\n",env->name,env->value);
         env = env->next;
     }

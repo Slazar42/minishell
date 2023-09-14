@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:15:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/14 15:02:37 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/14 22:16:05 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,10 +53,13 @@ enum e_token
 
 typedef struct s_command
 {
-    struct t_node *cmd;
-	struct t_node **arg;
+	char *cmd;
+    //struct node *node;
     struct s_command *next ;
+	int fd_in;
+	int fd_out;
 }t_cmd;
+
 
 typedef struct t_node
 {
@@ -84,7 +87,7 @@ typedef struct envirement
     struct envirement *next ;
 }t_env;
 
-
+void join_quotes(t_lexer *lx);
 /*-----------------utils-------------------*/
 char *ft_strdup_2(char *str,int start,int finish);
 int ft_strcmp(char *s1,char *s2);
