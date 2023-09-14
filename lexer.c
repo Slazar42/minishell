@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 10:09:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/13 23:23:11 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/14 17:31:07 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ void take_word(char *str, int *i, t_lexer *lx)
 	int start;
 	char *word;
 	start = *i;
-	while ((str[*i] >= 'a' && str[*i] <= 'z' ) || ( str[*i] >= 'A' && str[*i] <= 'Z'))
+	while (str[*i] && if_token(str[*i]) == 1)
 		(*i)++;
 	word = ft_strdup_2(str,start,*i-1);
 	add_node_to_lexer(lx,word,WORD,GENERAL);
@@ -151,10 +151,6 @@ t_node *skip_spaces(t_node *elem, char direction)
 		else if (direction == 'r')
 			elem = elem->next;
 	}
-	// if (direction == 'l')
-	// 	printf("content l |%s|\n", elem->content);
-	// if (direction == 'r')
-	// 	printf("content r |%s|\n", elem->content);
 	return(elem);
 }
 int pipe_err(t_node *elem)
@@ -242,28 +238,35 @@ int	syntax_error(t_lexer *lst)
 	}
 	return (0);
 }
-void command_between_pipes(t_lexer *lx)
+
+void clean_quotes(t_lexer *lx)
 {
 	t_node *cur;
-	char *cmd;
-
 	cur = lx->head;
 	
 	while (cur)
 	{
-		if(cur->type )
-		cur = cur->next;
+		if(((cur)->type == QOUTE || (cur)->type == DOUBLE_QUOTE))
+			{
+				if(cur->prev && cur->next)
+					(cur)->prev->next = (cur)->next;
+				free(cur);
+			}
+		(cur) = (cur)->next;
 	}
 	
-	
 }
+// void join_in_quotes(t_lexer *lx)
+// {
+	
+// }
 int lexer(char *str, t_lexer *lx)
 {
 	int i = 0;
 
 	while (str && str[i])
 	{
-		if(is_alphabet(str[i]) == 0)
+		if(str[i] && if_token(str[i]) == 1)
 			take_word(str,&i,lx);
 		else if(if_token(str[i]) == 0)
 			take_token(str,&i,lx);
@@ -273,7 +276,9 @@ int lexer(char *str, t_lexer *lx)
 	give_state(lx);
 	if (syntax_error(lx))
 		return (1);
-	command_between_pipes(lx);
+	clean_quotes(lx);
+	// join_in_quotes(lx);
+	return(0);
 }
 void ft_initialisation(t_lexer *lx)
 {
@@ -301,7 +306,7 @@ void ft_print_lexer(t_node **head)
             state = in_s_quote;
         else if (cur->state == GENERAL)
             state = general;
-        
+
         printf("|%-17s|%3d|%-15s|", cur->content, cur->len, state);
 
         if (cur->type == WORD)

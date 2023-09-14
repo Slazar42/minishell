@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 19:25:45 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/12 17:40:34 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/14 15:02:18 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ char *ft_strdup_2(char *str,int start,int finish)
 	return(dup);
 }
 
-int ft_strcmp(int *s1,int *s2)
+int ft_strcmp(char *s1,char *s2)
 {
 	while (s1 && s2 && *s1 && *s2)
 	{

@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:15:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/13 23:02:12 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/14 15:02:37 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,13 @@ enum e_token
 	REDIR_IN = '<',
 };
 
+typedef struct s_command
+{
+    struct t_node *cmd;
+	struct t_node **arg;
+    struct s_command *next ;
+}t_cmd;
+
 typedef struct t_node
 {
 	char			*content;
@@ -65,6 +72,7 @@ typedef struct s_lexer
 {
 	t_node	*head;
 	t_node	*tail;
+	t_cmd	*cmd;
 	int		  size;
 }	t_lexer;
 
@@ -76,15 +84,10 @@ typedef struct envirement
     struct envirement *next ;
 }t_env;
 
-typedef struct s_command
-{
-    char *cmd;
-    struct s_command *next ;
-}t_cmd;
 
 /*-----------------utils-------------------*/
 char *ft_strdup_2(char *str,int start,int finish);
-int ft_strcmp(int *s1,int *s2);
+int ft_strcmp(char *s1,char *s2);
 int if_token(char c);
 void ft_initialisation(t_lexer *lx);
 /*-----------------lexer-------------------*/

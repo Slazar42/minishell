@@ -6,11 +6,13 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 19:24:41 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/13 22:55:19 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/14 17:37:28 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include"minishell.h"
+
+// hy younes
 
 int only_sp_tab(char *line)
 {
