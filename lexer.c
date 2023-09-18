@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 10:09:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/17 22:38:39 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/18 23:51:59 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -250,10 +250,11 @@ void Join_node_quotes(char *content, t_node **first, t_node **last, enum e_state
 	t_node *new;
 	
 	new = malloc(sizeof(t_node));
-	new->content = ft_substr(content,1,ft_strlen(content)-2);
+	new->content = ft_substr(content,0,ft_strlen(content)-1);
 	new->next = NULL;
 	new->prev = NULL;
-	new->len = strlen(new->content);
+	new->len = ft_strlen(new->content);
+	printf("len |%d|\n",new->len);
 	if(state == IN_DQUOTE)
 		new->type = DOUBLE_QUOTE;
 	else
@@ -275,7 +276,8 @@ void take_in_dq(t_node **cur, enum e_state state, t_lexer *lx)
 	t_node *ptr;
 	tmp = (*cur);
 	
-	new_cont = malloc(1);
+	new_cont = ft_calloc(1,1);
+	(*cur) = (*cur)->next;
 	while ((*cur) && (*cur)->state == state)
 	{
 		new_cont = ft_strjoin(new_cont,(*cur)->content);
@@ -289,7 +291,6 @@ void take_in_dq(t_node **cur, enum e_state state, t_lexer *lx)
 		free(tmp);
 		tmp = ptr;
 	}
-	
 }
 void join_quotes(t_lexer *lx)
 {
@@ -306,7 +307,32 @@ void join_quotes(t_lexer *lx)
 			cur = cur->next;
 	}
 }
-
+void delete_white_space(t_lexer *lx)
+{
+	t_node *cur;
+	t_node *tmp;
+	cur = lx->head;
+	while (cur)
+	{
+		if(cur->type == WHITE_SPACE || cur->type == TAB || (cur->type == QOUTE && !cur->len)  || (cur->type == DOUBLE_QUOTE && !cur->len))
+		{
+			tmp = cur->next;
+			if(cur->prev)
+				cur->prev->next = cur->next;
+			if(cur->next)
+				cur->next->prev = cur->prev;
+			if(cur == lx->head)
+				lx->head = cur->next;
+			if(cur == lx->tail)
+				lx->tail = cur->prev;
+			free(cur->content);
+			free(cur);
+			cur = tmp;
+		}
+		else
+			cur = cur->next;
+	}
+}
 int lexer(char *str, t_lexer *lx)
 {
 	int i = 0;
@@ -352,7 +378,7 @@ void ft_print_lexer(t_node **head)
         else if (cur->state == GENERAL)
             state = general;
 
-        printf("|%-17s|%3d|%-15s|", cur->content, 0/*cur->len*/, state);
+        printf("|%-17s|%4d|%-15s|", cur->content, cur->len, state);
 
         if (cur->type == WORD)
             printf("      WORD    |\n");

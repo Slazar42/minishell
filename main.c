@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 19:24:41 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/17 17:42:46 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/18 23:47:05 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,8 +43,6 @@ int main(int __unused ac,char **av,char **envirement)
 
 	while (1)
 	{
-		// if (execve("ls", av, envirement) == -1)
-		// 	puts("error");
 		ft_initialisation(&lx);
 		line = readline("minishell ");
 		if (!line)
@@ -62,6 +60,7 @@ int main(int __unused ac,char **av,char **envirement)
 			{
 				ft_print_lexer(&lx.head);
 				join_quotes(&lx);
+				delete_white_space(&lx);
 				ft_print_lexer(&lx.head);
 			}
 			// free_list(&lx);

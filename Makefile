@@ -4,7 +4,7 @@ SRCS = lexer.c main.c utils.c env.c
 
 CC = gcc
 
-CFLAGS = -Wall -Werror -Wextra 
+CFLAGS = -Wall -Werror -Wextra -g
 
 OBJS = ${SRCS:.c=.o} $(LIBFT)
 
@@ -18,7 +18,7 @@ libft_clean:
 libft_re: libft_clean libft
 
 $(NAME) : $(OBJS) $(LIBFT) minishell.h
-		$(CC)  $(FLAGS) $(OBJS)  -o $(NAME) -I $(LIBFT) -lreadline
+		$(CC)   $(FLAGS) $(OBJS)  -o $(NAME) -I $(LIBFT) -lreadline
 clean :
 	rm -rf $(OBJS)
 
