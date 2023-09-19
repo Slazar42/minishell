@@ -6,17 +6,33 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 17:43:17 by yberrim           #+#    #+#             */
-/*   Updated: 2023/09/19 00:48:41 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/19 19:32:03 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
+
+typedef enum {
+    OUT_NONE,
+    WRITEOUT,
+    APPENDOUT
+} out_redirs;
+
+typedef enum {
+    IN_NONE,
+    READIN,
+    HEREDOC
+} in_redirs;
 
 typedef struct c {
     char** argv;
     int in;
     int out;
     int has_pipe;
+    out_redirs out_redir_type;
+    in_redirs in_redir_type;
+    char* in_file;
+    char* out_file;
     struct c* next;
     // redirections l8r
 } cmd;
@@ -24,12 +40,26 @@ typedef struct c {
 
 // ls -> /bin/ls
 // afjkadsf -> NULL (command not found)
-char* find_abs_path(char* cmd) {
+char* find_abs_path(char* cmd)
+{
+    // check if cmd starts with ./ (ya3ni lcommand kayna f current directory dial minishell)
     // linked list dial envp, ya3ni converti envp -> linked list
     char* raw_path = getenv("PATH");
     char** path_arr = ft_split(raw_path, ':');
     int i = 0;
-    while (path_arr[i]) {
+    if (cmd[0] == '/' && ft_strlen(cmd) > 1) {
+        if (access(cmd, F_OK) == 0)
+            return cmd;
+        return NULL;
+    }
+    if(cmd[0] == '.' && cmd[1] == '/')
+    {
+        if (access(cmd, F_OK) == 0)
+            return cmd;
+        return NULL;
+    }
+    while (path_arr[i])
+    {
         char* fwd_slash = ft_strjoin(path_arr[i], "/");
         char* abs_path = ft_strjoin(fwd_slash, cmd);
         if (access(abs_path, F_OK) == 0) {
@@ -46,32 +76,73 @@ char* find_abs_path(char* cmd) {
     return NULL;
 }
 
+void check_redirections(cmd* cmd) {
+    int pipefd[2];
+    // >
+    if (cmd->out_redir_type == WRITEOUT) {
+        cmd->out = open(cmd->out_file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+        printf("out redir fd: %i\n", cmd->out);
+        // open error handling
+    }
+    // >>
+    if (cmd->out_redir_type == APPENDOUT) {
+        cmd->out = open(cmd->out_file, O_WRONLY | O_APPEND, 0644);
+        // open error handling
+    }
+    // <
+    if (cmd->in_redir_type == READIN) {
+        cmd->in = open(cmd->in_file, O_RDONLY);
+        // open error handling (invalid permissions, file not found, etc)s
+    }
+    // <<
+    if (cmd->in_redir_type == HEREDOC) {
+        pipe(pipefd);
+        write(pipefd[1], cmd->in_file, ft_strlen(cmd->in_file));
+        close(pipefd[1]);
+        cmd->in = pipefd[0];
+    }
+}
 
-int execution_proto(cmd* cmd, char** env) {
+
+int execution_proto(cmd* cmd, char** env) 
+{
     int exit_status = 0;
     int pipe_fd[2];
-   while (cmd) {
+   while (cmd)
+   {
+        // check ila cmd kitbda b ./
+        // ila kant lcmd dial lit3tat lk absolute, /bin/ls
         char* cmd_abs_path = find_abs_path(cmd->argv[0]);
-        if (!cmd_abs_path) {
-            printf("minishell: %s: command not found\n", cmd->argv[0]); // print f stderro later
-            cmd = cmd->next;
-            continue;
-        }
-        if (cmd->has_pipe) {
+        if (cmd->has_pipe) 
+        {
             pipe(pipe_fd);
             cmd->out = pipe_fd[1];
             cmd->next->in = pipe_fd[0];
         }
+        if (!cmd_abs_path) 
+        {
+            printf("minishell: %s: command not found\n", cmd->argv[0]); // print f stderro later
+            exit_status = 127;
+            close(cmd->out);
+            cmd = cmd->next;
+            continue;
+        }
+        check_redirections(cmd);
         cmd->argv[0] = cmd_abs_path;
         int child_pid = fork();
-        if (child_pid == 0) {
-            if (cmd->out != 1) {
+        if (child_pid == 0) 
+        {
+            if (cmd->out != 1)
+            {
                 dup2(cmd->out, 1);
-                close(cmd->out);
+                close(pipe_fd[0]);
+                close(pipe_fd[1]);
             }
-            if (cmd->in != 0) {
+            if (cmd->in != 0)
+            {
                 dup2(cmd->in, 0);
-                close(cmd->in);
+                close(pipe_fd[0]);
+                close(pipe_fd[1]);
             } 
             execve(cmd_abs_path, cmd->argv, env);
             printf("an error occured when executing %s\n", cmd->argv[0]);
@@ -82,8 +153,8 @@ int execution_proto(cmd* cmd, char** env) {
             close(cmd->in);
         cmd = cmd->next;
    }
-   while (wait(NULL) > 0);
-   return exit_status;
+   while (wait(&exit_status) > 0);
+   return WEXITSTATUS(exit_status);
 }
 
 cmd* create_node() {
@@ -92,59 +163,59 @@ cmd* create_node() {
     ret->out = 1;
     return ret;
 }
+//cat < input.txt
 
-int main() {
+void test_pipes() {
     char* cmd1_argv[] = {"cat", "/dev/urandom", NULL};
     char* cmd2_argv[] = {"head", "-10", NULL};
-    // char* cmd3_argv[] = {"grep", "execution.c", NULL};
-    // ls -la |
+    char* cmd3_argv[] = {"wc", "-c", NULL};
+
     cmd* cmd_node = create_node();
     cmd_node->argv = cmd1_argv;
     cmd_node->has_pipe = 1;
     cmd_node->next = create_node();
     
+    cmd_node->next->argv = cmd2_argv;
+    cmd_node->next->has_pipe = 1;
+    cmd_node->next->next = create_node();
+    
+    cmd_node->next->next->argv = cmd3_argv;
+
+    int exit_status = execution_proto(cmd_node, NULL);
+}
+
+// working
+void redirections_test() {
+    char* cmd1_redir_argv[] = {"ls", "-la", "dfkahfkahsdk", NULL};
+
+    // cat -e < Makefile > Makefile2
     // cat -e
+    cmd* cmd_node = create_node();
+    cmd_node->argv = cmd1_redir_argv;
+    // < Makefile
+    cmd_node->in_redir_type = HEREDOC;
+    cmd_node->in_file = "Hello\nworld\nfrom\nheredoc\n";
+    // > Makefile
+    cmd_node->out_redir_type = WRITEOUT;
+    cmd_node->out_file = "heredoc_output.txt";
+    int exit_status = execution_proto(cmd_node, NULL);
+}
+
+
+int main() {
+    char* cmd1_argv[] = {"./test", NULL};
+    char* cmd2_argv[] = {"cat", "-e", NULL};
+
+    cmd* cmd_node = create_node();
+    cmd_node->argv = cmd1_argv;
+    cmd_node->has_pipe = 1;
+    cmd_node->next = create_node();
+    
     cmd_node->next->argv = cmd2_argv;
     // cmd_node->next->has_pipe = 1;
-    // cmd_node->next->next = create_node();
     
-    // grep execution.c
-    // cmd_node->next->next->argv = cmd3_argv;
-    
-    execution_proto(cmd_node, NULL);
+
+    int exit_status = execution_proto(cmd_node, NULL);
+    return 0;
 }
- 
-// int ft_execution(t_cmd *cmd, t_env *env)
-// {
-//     char **path = ft_split(getenv("PATH"),':');
-//     char *cmd_name = cmd->cmd;
-//     char *pwd_path = ft_strjoin("/",cmd_name);
-//     int i = 0;
-//     char* abs_path = NULL;
-//     while (path[i] != NULL)
-//     {
-//         char* fwd_path = ft_strjoin(path[i], "/");
-//         abs_path = ft_strjoin(fwd_path, cmd_name);
-//         if (access(abs_path, F_OK) == 0) 
-//         {
-//             free(fwd_path);
-//             break;
-//         }
-//         free(abs_path);
-//         free(fwd_path);
-//         i++;
-//     }
-//     i = 0;
-//     free(path);
-//     printf("executing: %s\n", abs_path);
-//     change_home(env);
-//     char* argv[] = {abs_path, NULL};
-//     int child_pid = fork();
-//     if (!child_pid) {
-//         execve(abs_path, argv, ft_env(env));
-//         ft_putstr_fd("error: execve failed\n", 2);
-//         exit(1);
-//     }
-//     waitpid(child_pid, NULL, 0);
-//     return(0);
-// }
+
