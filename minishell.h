@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:15:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/14 22:16:05 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/19 20:48:22 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,13 +93,14 @@ char *ft_strdup_2(char *str,int start,int finish);
 int ft_strcmp(char *s1,char *s2);
 int if_token(char c);
 void ft_initialisation(t_lexer *lx);
+void delete_white_space(t_lexer *lx);
 /*-----------------lexer-------------------*/
 void add_node_to_lexer(t_lexer *lx,char *word,enum e_token token,enum e_state state);
 void take_token(char *str,int *i,t_lexer *lx);
 int is_alphabet(char c);
 int is_digits(char c);
 void take_word(char *str, int *i, t_lexer *lx);
-int lexer(char *str, t_lexer *lx);
+int lexer(char *str, t_lexer *lx,t_env *env);
 void ft_print_lexer(t_node **head);
 void	free_list(t_lexer *lst);
 /*-----------ENVIRENEMENT-------------------*/

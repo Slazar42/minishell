@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 10:09:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/17 22:38:39 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/19 21:11:19 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,9 +197,9 @@ int	redir_err(t_node *ptr)
 
 	nxt = skip_spaces(ptr->next, 'r');
 	if(nxt)
-	printf("nxt content |%s| \n",nxt->content);
-	if (!nxt || (nxt->type != WORD && nxt->type != ENV))
-		return (1);
+	if (!nxt || (nxt->type != WORD && nxt->type != ENV && \
+		nxt->type != DOUBLE_QUOTE && nxt->type != QOUTE))
+			return (1);
 	return (0);
 }
 t_node	*check_quotes(t_node **node, enum e_token quote)
@@ -250,10 +250,10 @@ void Join_node_quotes(char *content, t_node **first, t_node **last, enum e_state
 	t_node *new;
 	
 	new = malloc(sizeof(t_node));
-	new->content = ft_substr(content,1,ft_strlen(content)-2);
+	new->content = ft_substr(content,0,ft_strlen(content)-1);
 	new->next = NULL;
 	new->prev = NULL;
-	new->len = strlen(new->content);
+	new->len = ft_strlen(new->content);
 	if(state == IN_DQUOTE)
 		new->type = DOUBLE_QUOTE;
 	else
@@ -275,7 +275,8 @@ void take_in_dq(t_node **cur, enum e_state state, t_lexer *lx)
 	t_node *ptr;
 	tmp = (*cur);
 	
-	new_cont = malloc(1);
+	new_cont = ft_calloc(1,1);
+	(*cur) = (*cur)->next;
 	while ((*cur) && (*cur)->state == state)
 	{
 		new_cont = ft_strjoin(new_cont,(*cur)->content);
@@ -288,8 +289,8 @@ void take_in_dq(t_node **cur, enum e_state state, t_lexer *lx)
 		ptr = tmp->next;
 		free(tmp);
 		tmp = ptr;
+		lx->size -= 1;
 	}
-	
 }
 void join_quotes(t_lexer *lx)
 {
@@ -306,8 +307,67 @@ void join_quotes(t_lexer *lx)
 			cur = cur->next;
 	}
 }
-
-int lexer(char *str, t_lexer *lx)
+void delete_white_space(t_lexer *lx)
+{
+	t_node *cur;
+	t_node *tmp;
+	cur = lx->head;
+	while (cur)
+	{
+		if(cur->type == WHITE_SPACE || cur->type == TAB || (cur->type == QOUTE && !cur->len)  || (cur->type == DOUBLE_QUOTE && !cur->len))
+		{
+			tmp = cur->next;
+			if(cur->prev)
+				cur->prev->next = cur->next;
+			if(cur->next)
+				cur->next->prev = cur->prev;
+			if(cur == lx->head)
+				lx->head = cur->next;
+			if(cur == lx->tail)
+				lx->tail = cur->prev;
+			free(cur->content);
+			free(cur);
+			lx->size -= 1;
+			cur = tmp;
+		}
+		else
+			cur = cur->next;
+	}
+}
+char *get_env(t_env *env,char *str)
+{
+	t_env 	*cur;
+	char	*s;
+	
+	s = ft_strdup(str+1);
+	cur = env;
+	while (cur)
+	{
+		if(!ft_strncmp(cur->name,(str+1), ft_strlen(s)))
+			return(cur->value);
+		cur = cur->next;
+	}
+	free(s);
+	return(NULL);
+}
+void var_from_env(t_env *env,t_lexer *lx)
+{
+	t_node *cur;
+	
+	cur = lx->head;
+	while (cur)
+	{
+		if(cur->type == ENV && (cur->state == GENERAL || cur->state == IN_DQUOTE))
+		{
+			cur->content = ft_strdup(get_env(env,cur->content));
+			cur->len = ft_strlen(cur->content);
+			cur->type = WORD;
+		}
+		else
+		cur = cur->next;
+	}
+}
+int lexer(char *str, t_lexer *lx, t_env *env)
 {
 	int i = 0;
 
@@ -321,6 +381,8 @@ int lexer(char *str, t_lexer *lx)
 			i++;
 	}
 	give_state(lx);
+	// (void)env;
+	var_from_env(env,lx);
 	if (syntax_error(lx))
 		return (1);
 	return(0);
@@ -352,7 +414,7 @@ void ft_print_lexer(t_node **head)
         else if (cur->state == GENERAL)
             state = general;
 
-        printf("|%-17s|%3d|%-15s|", cur->content, 0/*cur->len*/, state);
+        printf("|%-17s|%4d|%-15s|", cur->content, cur->len, state);
 
         if (cur->type == WORD)
             printf("      WORD    |\n");
