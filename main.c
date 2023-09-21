@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 19:24:41 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/20 23:44:40 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/21 17:10:54 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,7 @@ void	create_cmd(t_lexer *lx, t_cmd *cmd)
 	}
 	cmd[i].cmd = malloc(sizeof(char *) * (j + 1));
 	cmd[i].cmd[j] = NULL;
+	cmd[i + 1].cmd = NULL;
 }
 
 t_cmd *commands(t_lexer *lx,t_cmd *cmd)

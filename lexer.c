@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 10:09:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/20 20:37:31 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/21 17:32:17 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -274,10 +274,10 @@ void take_in_dq(t_node **cur, enum e_state state, t_lexer *lx, enum e_token type
 	t_node *tmp;
 	t_node *ptr;
 	tmp = (*cur);
-	
+	(void)type;	
 	new_cont = ft_calloc(1,1);
 	(*cur) = (*cur)->next;
-	while ((*cur) && (*cur)->type == type)
+	while ((*cur) && (*cur)->state == state)
 	{
 		new_cont = ft_strjoin(new_cont,(*cur)->content);
 		(*cur) = (*cur)->next;
@@ -292,6 +292,7 @@ void take_in_dq(t_node **cur, enum e_state state, t_lexer *lx, enum e_token type
 		lx->size -= 1;
 	}
 }
+
 void join_quotes(t_lexer *lx)
 {
 	t_node *cur;
