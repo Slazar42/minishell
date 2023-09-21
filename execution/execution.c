@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 17:43:17 by yberrim           #+#    #+#             */
-/*   Updated: 2023/09/19 19:32:03 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/21 12:59:32 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,9 @@ typedef struct c {
     // redirections l8r
 } cmd;
 
-
+int exit_status(int status) {
+    return WEXITSTATUS(status);
+}
 // ls -> /bin/ls
 // afjkadsf -> NULL (command not found)
 char* find_abs_path(char* cmd)
@@ -47,7 +49,8 @@ char* find_abs_path(char* cmd)
     char* raw_path = getenv("PATH");
     char** path_arr = ft_split(raw_path, ':');
     int i = 0;
-    if (cmd[0] == '/' && ft_strlen(cmd) > 1) {
+    if (cmd[0] == '/' && ft_strlen(cmd) > 1)
+    {
         if (access(cmd, F_OK) == 0)
             return cmd;
         return NULL;
@@ -65,37 +68,43 @@ char* find_abs_path(char* cmd)
         if (access(abs_path, F_OK) == 0) {
             free(fwd_slash);
             free(path_arr);
-            // command found
+            printf("found abs path: %s\n", abs_path);
             return abs_path;
         }
         free(fwd_slash);
         free(abs_path);
         i++;
     }
-    // command not found
+    printf("command not found\n");
     return NULL;
 }
 
 void check_redirections(cmd* cmd) {
     int pipefd[2];
     // >
-    if (cmd->out_redir_type == WRITEOUT) {
+    if (cmd->out_redir_type == WRITEOUT) 
+    {
         cmd->out = open(cmd->out_file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
         printf("out redir fd: %i\n", cmd->out);
-        // open error handling
+        if(cmd->out == -1)
+            printf("error opening file\n");
     }
     // >>
     if (cmd->out_redir_type == APPENDOUT) {
         cmd->out = open(cmd->out_file, O_WRONLY | O_APPEND, 0644);
-        // open error handling
+        if(cmd->out == -1)
+            printf("error opening file\n");
     }
     // <
-    if (cmd->in_redir_type == READIN) {
+    if (cmd->in_redir_type == READIN) 
+    {
         cmd->in = open(cmd->in_file, O_RDONLY);
-        // open error handling (invalid permissions, file not found, etc)s
+        if(cmd->in == -1)
+            printf("error opening file\n");
     }
     // <<
-    if (cmd->in_redir_type == HEREDOC) {
+    if (cmd->in_redir_type == HEREDOC) 
+    {
         pipe(pipefd);
         write(pipefd[1], cmd->in_file, ft_strlen(cmd->in_file));
         close(pipefd[1]);
@@ -157,7 +166,8 @@ int execution_proto(cmd* cmd, char** env)
    return WEXITSTATUS(exit_status);
 }
 
-cmd* create_node() {
+cmd* create_node() 
+{
     cmd* ret = malloc(sizeof(cmd));
     ft_memset(ret, 0, sizeof(cmd));
     ret->out = 1;
@@ -165,9 +175,10 @@ cmd* create_node() {
 }
 //cat < input.txt
 
-void test_pipes() {
-    char* cmd1_argv[] = {"cat", "/dev/urandom", NULL};
-    char* cmd2_argv[] = {"head", "-10", NULL};
+void test_pipes()
+{
+    char* cmd1_argv[] = {"echo", "-n", NULL};
+    char* cmd2_argv[] = {"head", "n", NULL};
     char* cmd3_argv[] = {"wc", "-c", NULL};
 
     cmd* cmd_node = create_node();

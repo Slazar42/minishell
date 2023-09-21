@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:15:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/19 20:48:22 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/21 14:37:51 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,20 +87,40 @@ typedef struct envirement
     struct envirement *next ;
 }t_env;
 
+/*execution parttt*/
+// typedef struct s_cmd {
+//     char** argv;
+//     int in;
+//     int out;
+//     int has_pipe;
+//     int has_redir;
+//     struct c* next;
+//     // redirections l8r
+// } t_cmd;
+
+
+int ft_pwd(int fd_out);
+char	*ft_strjoin_free(char const *s1, char const *s2);
+int ft_strcmp(char *s1, char *s2);
+void ft_unset(char **av, t_env **env);
+
+int builtin(char **av, t_env **env);
+int ft_echo(char **av, int fd_out);
+char **ft_env(t_env *envirement);
+/*-----------------quotes-------------------*/
 void join_quotes(t_lexer *lx);
 /*-----------------utils-------------------*/
 char *ft_strdup_2(char *str,int start,int finish);
 int ft_strcmp(char *s1,char *s2);
 int if_token(char c);
 void ft_initialisation(t_lexer *lx);
-void delete_white_space(t_lexer *lx);
 /*-----------------lexer-------------------*/
 void add_node_to_lexer(t_lexer *lx,char *word,enum e_token token,enum e_state state);
 void take_token(char *str,int *i,t_lexer *lx);
 int is_alphabet(char c);
 int is_digits(char c);
 void take_word(char *str, int *i, t_lexer *lx);
-int lexer(char *str, t_lexer *lx,t_env *env);
+int lexer(char *str, t_lexer *lx);
 void ft_print_lexer(t_node **head);
 void	free_list(t_lexer *lst);
 /*-----------ENVIRENEMENT-------------------*/
@@ -109,7 +129,8 @@ char *get_var_name(char *env);
 char *get_var_value(char *env);
 void ft_variables(t_env **env,char **envirement);
 void print_env(t_env *env);
-
+// void change_dir();
+char **ft_env(t_env *envirement);
 // typedef struct pars
 // {
 //     int fd_input; //fd diel input for each cmmd
