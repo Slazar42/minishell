@@ -1,20 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_env.c                                           :+:      :+:    :+:   */
+/*   ft_lstadd_back.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/18 10:41:24 by yberrim           #+#    #+#             */
-/*   Updated: 2023/09/21 13:36:22 by yberrim          ###   ########.fr       */
+/*   Created: 2022/10/27 22:24:39 by slazar            #+#    #+#             */
+/*   Updated: 2023/08/28 13:34:43 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./../../minishell.h"
+#include "libft.h"
 
-
-
-
-
-
-// execve(av[0], av, ft_env(env);
+void	ft_lstadd_back(t_lst **lst, t_lst *new)
+{
+	if (*lst)
+		ft_lstlast(*lst)->next = new;
+	else
+		*lst = new;
+}

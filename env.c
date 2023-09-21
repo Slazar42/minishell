@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:11:51 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/18 13:23:02 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/14 18:19:05 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ char *get_var_value(char *env)
     i = 0;
     while (env[i] && env[i] != '=')
         i++;
-    value = malloc(ft_strlen(env) - i + 1);
+    value = malloc(ft_strlen(env + i));
     i++;
     while (env[i])
     {

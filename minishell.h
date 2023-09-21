@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:15:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/21 14:37:51 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/21 17:47:27 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 # include <errno.h>
 # include <readline/history.h>
 # include <readline/readline.h>
-# include "libft/libft.h"
+# include "my_libft/libft.h"
 
 enum e_state
 {
@@ -50,17 +50,37 @@ enum e_token
 	REDIR_OUT = '>',
 	REDIR_IN = '<',
 };
+/*-----------yy---------*/
+typedef enum {
+    OUT_NONE,
+    WRITEOUT,
+    APPENDOUT
+} out_redirs;
 
-typedef struct s_command
+typedef enum {
+    IN_NONE,
+    READIN,
+    HEREDOC
+} in_redirs;
+
+typedef struct s_redir{
+    char* in_file;	// linked list or array of strings
+    char* out_file; // linked list or array of strings
+	char *app_file; // linked list or array of strings
+} t_redir;
+
+/*-----------yy---------*/
+typedef struct s_cmd 
 {
-	char *cmd;
-    //struct node *node;
-    struct s_command *next ;
+    char** cmd;
 	int fd_in;
 	int fd_out;
-}t_cmd;
-
-
+	char *env;
+	int herdoc_fd;
+	t_redir redir;
+    // struct c* next;
+} t_cmd;
+/*-----------yy------------*/
 typedef struct t_node
 {
 	char			*content;
@@ -75,7 +95,6 @@ typedef struct s_lexer
 {
 	t_node	*head;
 	t_node	*tail;
-	t_cmd	*cmd;
 	int		  size;
 }	t_lexer;
 
@@ -87,40 +106,26 @@ typedef struct envirement
     struct envirement *next ;
 }t_env;
 
-/*execution parttt*/
-// typedef struct s_cmd {
-//     char** argv;
-//     int in;
-//     int out;
-//     int has_pipe;
-//     int has_redir;
-//     struct c* next;
-//     // redirections l8r
-// } t_cmd;
-
-
-int ft_pwd(int fd_out);
-char	*ft_strjoin_free(char const *s1, char const *s2);
-int ft_strcmp(char *s1, char *s2);
-void ft_unset(char **av, t_env **env);
-
-int builtin(char **av, t_env **env);
-int ft_echo(char **av, int fd_out);
-char **ft_env(t_env *envirement);
-/*-----------------quotes-------------------*/
 void join_quotes(t_lexer *lx);
+int is_buildin(t_cmd *cmd);
+int ft_pwd(int fd_out);
+int ft_echo(t_cmd *cmd, int fd_out);
+int execution_builtin(t_cmd *cmd, int i);
+int ft_cd(t_cmd *cmd, int fd);
+int ft_env(t_cmd *cmd, int fd_out);
 /*-----------------utils-------------------*/
 char *ft_strdup_2(char *str,int start,int finish);
 int ft_strcmp(char *s1,char *s2);
 int if_token(char c);
 void ft_initialisation(t_lexer *lx);
+void delete_white_space(t_lexer *lx);
 /*-----------------lexer-------------------*/
 void add_node_to_lexer(t_lexer *lx,char *word,enum e_token token,enum e_state state);
 void take_token(char *str,int *i,t_lexer *lx);
 int is_alphabet(char c);
 int is_digits(char c);
 void take_word(char *str, int *i, t_lexer *lx);
-int lexer(char *str, t_lexer *lx);
+int lexer(char *str, t_lexer *lx, t_env *env);
 void ft_print_lexer(t_node **head);
 void	free_list(t_lexer *lst);
 /*-----------ENVIRENEMENT-------------------*/
@@ -129,8 +134,7 @@ char *get_var_name(char *env);
 char *get_var_value(char *env);
 void ft_variables(t_env **env,char **envirement);
 void print_env(t_env *env);
-// void change_dir();
-char **ft_env(t_env *envirement);
+
 // typedef struct pars
 // {
 //     int fd_input; //fd diel input for each cmmd

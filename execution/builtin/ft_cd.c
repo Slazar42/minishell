@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 10:40:58 by yberrim           #+#    #+#             */
-/*   Updated: 2023/09/21 13:30:04 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/21 17:38:32 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,56 +18,63 @@
 #include <unistd.h>
 
 
-typedef enum {
-    OUT_NONE,
-    WRITEOUT,
-    APPENDOUT
-} out_redirs;
+// typedef enum {
+//     OUT_NONE,
+//     WRITEOUT,
+//     APPENDOUT
+// } out_redirs;
 
-typedef enum {
-    IN_NONE,
-    READIN,
-    HEREDOC
-} in_redirs;
+// typedef enum {
+//     IN_NONE,
+//     READIN,
+//     HEREDOC
+// } in_redirs;
 
-typedef struct c {
-    char** argv;
-    int in;
-    int out;
-    int has_pipe;
-    out_redirs out_redir_type;
-    in_redirs in_redir_type;
-    char* in_file;
-    char* out_file;
-    struct c* next;
-    // redirections l8r
-} cmd;
+// typedef struct c {
+//     char** argv;
+//     int in;
+//     int out;
+//     int has_pipe;
+//     out_redirs out_redir_type;
+//     in_redirs in_redir_type;
+//     char* in_file;
+//     char* out_file;
+//     struct c* next;
+//     // redirections l8r
+// } cmd;
 
-int ft_cd(char **arg, int fd)
+int ft_cd(t_cmd *cmd, int fd)
 {
-    char *path;
-
-    if(!path[0])
-        path = ft_getenv("HOME");
-    else if (ft_strcmp(arg[0], "~") == 0)
-        path = ft_getenv("OLDPWD");
-    else if(ft_strcmp(arg[0], "-") == 0)
+    char *old_pwd;
+    
+    if(cmd->cmd[1] == NULL)
     {
-        path = ft_getenv("OLDPWD");
-        if(!path)
+        if(chdir(getenv("HOME")) == -1)
         {
-            ft_putstr_fd("minishell: cd: OLDPWD not set\n", 2);
+            ft_putstr_fd("cd: HOME not set\n", fd);
             return 1;
         }
-        ft_putstr_fd(path, fd);
-        write(fd, "\n", 1);
+    }
+    else if(ft_strcmp(cmd->cmd[1], "-") == 0)
+    {
+        if((old_pwd = getenv("OLDPWD")) == NULL)
+        {
+            ft_putstr_fd("cd: OLDPWD not set\n", fd);
+            return 1;
+        }
+        if(chdir(old_pwd) == -1)
+        {
+            ft_putstr_fd("cd: OLDPWD not set\n", fd);
+            return 1;
+        }
     }
     else
-        path = ft_strdup(arg[0]);
-    if(chdir(path) == -1)
     {
-        perror("directory error");
-        return 1;
+        if(chdir(cmd->cmd[1]) == -1)
+        {
+            ft_putstr_fd("cd: No such file or directory\n", fd);
+            return 1;
+        }
     }
     return 0;
 }

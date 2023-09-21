@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 17:43:17 by yberrim           #+#    #+#             */
-/*   Updated: 2023/09/21 12:59:32 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/21 16:15:19 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,7 +214,7 @@ void redirections_test() {
 
 
 int main() {
-    char* cmd1_argv[] = {"./test", NULL};
+    char* cmd1_argv[] = {"ls", "-la"};
     char* cmd2_argv[] = {"cat", "-e", NULL};
 
     cmd* cmd_node = create_node();
