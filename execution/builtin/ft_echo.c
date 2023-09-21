@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 18:52:08 by yberrim           #+#    #+#             */
-/*   Updated: 2023/09/20 21:47:33 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/21 13:19:54 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,26 +21,26 @@ int ft_strcmp(char *s1, char *s2)
         i++;
     return (s1[i] - s2[i]);
 }
-
-void ft_echo(char **av)
+int ft_echo(char **av, int fd_out)
 {
     int i;
     int n;
 
     i = 1;
     n = 0;
-    if (av[1] && strcmp(av[1], "-n") == 0)
+    if (av[1] && ft_strcmp(av[1], "-n") == 0)
     {
         n = 1;
         i++;
     }
     while (av[i])
     {
-        printf("%s", av[i]);
+        ft_putstr_fd(av[i], fd_out);
         if (av[i + 1])
-            printf(" ");
+            ft_putstr_fd(" ", fd_out);
         i++;
     }
     if (n == 0)
-        printf("\n");
+        ft_putstr_fd("\n", fd_out);
+    return (0);
 }

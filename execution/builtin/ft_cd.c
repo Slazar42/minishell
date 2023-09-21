@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 10:40:58 by yberrim           #+#    #+#             */
-/*   Updated: 2023/09/20 21:50:22 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/21 13:30:04 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,3 +43,31 @@ typedef struct c {
     // redirections l8r
 } cmd;
 
+int ft_cd(char **arg, int fd)
+{
+    char *path;
+
+    if(!path[0])
+        path = ft_getenv("HOME");
+    else if (ft_strcmp(arg[0], "~") == 0)
+        path = ft_getenv("OLDPWD");
+    else if(ft_strcmp(arg[0], "-") == 0)
+    {
+        path = ft_getenv("OLDPWD");
+        if(!path)
+        {
+            ft_putstr_fd("minishell: cd: OLDPWD not set\n", 2);
+            return 1;
+        }
+        ft_putstr_fd(path, fd);
+        write(fd, "\n", 1);
+    }
+    else
+        path = ft_strdup(arg[0]);
+    if(chdir(path) == -1)
+    {
+        perror("directory error");
+        return 1;
+    }
+    return 0;
+}

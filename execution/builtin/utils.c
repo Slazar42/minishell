@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 11:08:28 by yberrim           #+#    #+#             */
-/*   Updated: 2023/09/18 17:24:11 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/21 12:51:24 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,25 +41,3 @@ char	*ft_strjoin_free(char const *s1, char const *s2)
 	return (cnc);
 }
 
-// int buldins(char *av, t_env *env) {
-//     if (ft_strcmp(av[0], "cd") == 0) {
-//         return change_dir(av, env);
-//     }
-    // Uncomment and implement other built-in commands as needed
-    /*
-    else if (strcmp(av[0], "unset") == 0) {
-        return unset(av, env);
-    }
-    else if (strcmp(av[0], "pwd") == 0) {
-        return pwd(av, env);
-    }
-    else if (strcmp(av[0], "echo") == 0) {
-        return echo(av, env);
-    }
-    else if (strcmp(av[0], "env") == 0) {
-        return env(av, env);
-    }
-    */
-
-//     return 0; // Return 0 for unrecognized commands
-// }
