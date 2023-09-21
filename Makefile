@@ -9,16 +9,16 @@ CFLAGS = -Wall -Werror -Wextra -g
 OBJS = ${SRCS:.c=.o} $(LIBFT)
 
 all : $(NAME)
-LIBFT = libft/libft.a
+LIBFT = my_libft/libft.a
 $(LIBFT):
-	make -C libft
+	make -C my_libft
 libft: $(LIBFT)
 libft_clean:
-	make fclean -C libft
-libft_re: libft_clean libft
+	make fclean -C my_libft
+libft_re: libft_clean my_libft
 
 $(NAME) : $(OBJS) $(LIBFT) minishell.h
-		$(CC)   $(FLAGS) $(OBJS)  -o $(NAME) -I $(LIBFT) -lreadline
+		$(CC) -fsanitize=address -g $(FLAGS) $(OBJS)  -o $(NAME) -I $(LIBFT) -lreadline
 clean :
 	rm -rf $(OBJS)
 

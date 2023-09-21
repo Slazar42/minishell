@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:15:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/19 20:48:22 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/21 15:46:51 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 # include <errno.h>
 # include <readline/history.h>
 # include <readline/readline.h>
-# include "libft/libft.h"
+# include "my_libft/libft.h"
 
 enum e_state
 {
@@ -50,17 +50,33 @@ enum e_token
 	REDIR_OUT = '>',
 	REDIR_IN = '<',
 };
+/*-----------yy---------*/
+typedef enum {
+    OUT_NONE,
+    WRITEOUT,
+    APPENDOUT
+} out_redirs;
 
-typedef struct s_command
-{
-	char *cmd;
-    //struct node *node;
-    struct s_command *next ;
-	int fd_in;
-	int fd_out;
-}t_cmd;
+typedef enum {
+    IN_NONE,
+    READIN,
+    HEREDOC
+} in_redirs;
 
+typedef struct s_redir{
+    char* in_file;	// linked list or array of strings
+    char* out_file; // linked list or array of strings
+	char *app_file; // linked list or array of strings
+} t_redir;
 
+/*-----------yy---------*/
+typedef struct s_cmd {
+    char** cmd;
+	int herdoc_fd;
+	t_redir redir;
+    struct c* next;
+} t_cmd;
+/*-----------yy------------*/
 typedef struct t_node
 {
 	char			*content;
@@ -75,7 +91,6 @@ typedef struct s_lexer
 {
 	t_node	*head;
 	t_node	*tail;
-	t_cmd	*cmd;
 	int		  size;
 }	t_lexer;
 

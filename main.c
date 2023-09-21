@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 19:24:41 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/19 21:11:31 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/20 23:44:40 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,14 +51,100 @@ void join_in_quote_and_word(t_lexer *lx)
 		cur = cur->next;
 	}
 }
+int ft_count_cmd(t_lexer *lx)
+{
+	t_node *tmp;
+	int count;
+	
+	count = 0;
+	tmp = lx->head;
+	while(tmp)
+	{
+		if(tmp->type == PIPE_LINE)
+			count++;
+		tmp = tmp->next;
+	}
+	return(count);
+}
+
+void	create_cmd(t_lexer *lx, t_cmd *cmd)
+{
+	t_node *cur;
+	int i;
+	int j;
+	
+	i = 0;
+	j = 0;
+	cur = lx->head;
+	while(cur)
+	{
+		if(cur->type == PIPE_LINE)
+		{
+			cmd[i].cmd = malloc(sizeof(char *) * (j + 1));
+			cmd[i].cmd[j] = NULL;
+			i++;
+			j = 0;
+		}
+		else
+			j++;
+		cur = cur->next;
+	}
+	cmd[i].cmd = malloc(sizeof(char *) * (j + 1));
+	cmd[i].cmd[j] = NULL;
+}
+
+t_cmd *commands(t_lexer *lx,t_cmd *cmd)
+{
+	t_node *cur;
+	int i;
+	int j;
+	
+	i = 0;
+	j = 0;
+	cmd = malloc(sizeof(t_cmd) * (ft_count_cmd(lx) + 2));
+	create_cmd(lx,cmd);
+	cur = lx->head;
+	while(cur)
+	{
+		if(cur->type == PIPE_LINE)
+		{
+			cmd[i].cmd[j] = NULL;
+			i++;
+			j = 0;
+		}
+		else
+		{
+			cmd[i].cmd[j] = ft_strdup(cur->content);
+			j++;
+		}
+		cur = cur->next;
+	}
+	cmd[i].cmd[j] = NULL;
+	i = 0;
+	while(cmd[i].cmd)
+	{
+		printf("cmd[%d] = ",i);
+		j = 0;
+		while(cmd[i].cmd[j])
+		{
+			printf("%s ",cmd[i].cmd[j]);
+			j++;
+		}
+		printf("\n");
+		i++;
+	}
+	return(cmd);
+}
 int main(int __unused ac,char **av,char **envirement)
 {
-    (void) ac;
-    (void) av;
-    t_env *env;
-    ft_variables(&env,envirement);
-	t_lexer lx;
 	char *line;
+    t_env *env;
+	t_lexer lx;
+	t_cmd *cmd;
+    (void) av;
+    (void) ac;
+
+    ft_variables(&env,envirement);
 
 	while (1)
 	{
@@ -82,6 +168,7 @@ int main(int __unused ac,char **av,char **envirement)
 				join_in_quote_and_word(&lx);
 				delete_white_space(&lx);
 				ft_print_lexer(&lx.head);
+				cmd = commands(&lx,cmd);
 			}
 			// free_list(&lx);
 		}

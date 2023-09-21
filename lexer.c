@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 10:09:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/19 21:11:19 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/20 20:37:31 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,27 +100,27 @@ void	give_state(t_lexer *lx)
 	{
 		if(cur->type == DOUBLE_QUOTE && cur->next)
 		{
-			cur->state = IN_DQUOTE;
+			// cur->state = IN_DQUOTE;
 			cur = cur->next;
 			while (cur && cur->type != DOUBLE_QUOTE)
 			{
 				cur->state = IN_DQUOTE;
 				cur = cur->next;
 			}
-			if(cur)
-				cur->state = IN_DQUOTE;
+			// if(cur)
+			// 	cur->state = IN_DQUOTE;
 		}
 		else if(cur->type == QOUTE && cur->next)
 		{
-			cur->state = IN_SQUOTE;
+			// cur->state = IN_SQUOTE;
 			cur = cur->next;
 			while (cur && cur->type != QOUTE)
 			{
 				cur->state = IN_SQUOTE;
 				cur = cur->next;
 			}
-			if(cur)
-				cur->state = IN_SQUOTE;
+			// if(cur)
+			// 	cur->state = IN_SQUOTE;
 		}
 		if(cur)
 			cur = cur->next;
@@ -250,7 +250,7 @@ void Join_node_quotes(char *content, t_node **first, t_node **last, enum e_state
 	t_node *new;
 	
 	new = malloc(sizeof(t_node));
-	new->content = ft_substr(content,0,ft_strlen(content)-1);
+	new->content = ft_substr(content,0,ft_strlen(content));
 	new->next = NULL;
 	new->prev = NULL;
 	new->len = ft_strlen(new->content);
@@ -268,7 +268,7 @@ void Join_node_quotes(char *content, t_node **first, t_node **last, enum e_state
 	if(!(*first))
 		lx->head = new;
 }
-void take_in_dq(t_node **cur, enum e_state state, t_lexer *lx)
+void take_in_dq(t_node **cur, enum e_state state, t_lexer *lx, enum e_token type)
 {
 	char *new_cont;
 	t_node *tmp;
@@ -277,7 +277,7 @@ void take_in_dq(t_node **cur, enum e_state state, t_lexer *lx)
 	
 	new_cont = ft_calloc(1,1);
 	(*cur) = (*cur)->next;
-	while ((*cur) && (*cur)->state == state)
+	while ((*cur) && (*cur)->type == type)
 	{
 		new_cont = ft_strjoin(new_cont,(*cur)->content);
 		(*cur) = (*cur)->next;
@@ -299,10 +299,10 @@ void join_quotes(t_lexer *lx)
 
 	while (cur)
 	{
-		if (cur->state == IN_DQUOTE)
-			take_in_dq(&cur, IN_DQUOTE,lx);
-		else if (cur->state == IN_SQUOTE)
-			take_in_dq(&cur ,IN_SQUOTE,lx);
+		if (cur->type == DOUBLE_QUOTE )
+			take_in_dq(&cur, IN_DQUOTE,lx,DOUBLE_QUOTE);
+		else if (cur->type == QOUTE)
+			take_in_dq(&cur ,IN_SQUOTE,lx,QOUTE);
 		else
 			cur = cur->next;
 	}
@@ -381,7 +381,6 @@ int lexer(char *str, t_lexer *lx, t_env *env)
 			i++;
 	}
 	give_state(lx);
-	// (void)env;
 	var_from_env(env,lx);
 	if (syntax_error(lx))
 		return (1);
