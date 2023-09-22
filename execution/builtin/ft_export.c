@@ -6,112 +6,86 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 21:50:34 by yberrim           #+#    #+#             */
-/*   Updated: 2023/09/21 14:40:40 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/22 16:44:20 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./../../minishell.h"
 
-int print_expot_lis(char **env, int fd)
+void  add_new_var(t_env **env, char **var)
 {
-    int i;
-    
-    i = 0;
-    while (env[i])
+    t_env *head = *env;
+    t_env *new_var;
+    new_var = (t_env *)malloc(sizeof(t_env));
+    new_var->name = ft_strdup(var[0]);
+    new_var->value = ft_strdup(var[1]);
+    new_var->next = NULL;
+    while (head->next)
+        head = head->next;
+    head->next = new_var;
+}
+int check_if_exist(t_cmd *cmd, char **var)
+{
+    t_env *env = cmd->env;
+    while(env)
     {
-        if(ft_strcmp(ft_substr(env[i], 0, ft_strchr(env[i], '=') - env[i]), "_"))
+        if (ft_strcmp(env->name, var[0]) == 0)
         {
-            i++;
-            continue;
+            free(env->value);
+            env->value = ft_strdup(var[1]);
+            return (1);
         }
-        ft_putstr_fd("declare -x ", fd);
-        if(ft_strchr(env[i], '='))
-        {
-            ft_putstr_fd(ft_substr(env[i], 0, ft_strchr(env[i], '=') - env[i]), fd);
-            write(fd, "\"", 2);
-            ft_putstr_fd(ft_strchr(env[i], '=') + 1, fd);
-            write(fd, "\"\n", 2);
-        }
-        else
-        {
-            ft_putstr_fd(env[i], fd);
-            write(fd, "\n", 1);
-        }
-        i++;
+        env = env->next;
     }
-    return 0;
+    return (0);
 }
-
-char *ft_copy(char *s1)
+char **check_invalid_var(char *str)
 {
-    char *s2;
-    size_t i;
-
-    i = ft_strlen((char *)s1);
-    s2 = malloc(sizeof(char) * (i + 1));
-    if (!s2)
-        return (0);
-    ft_strlcpy(s2, s1, i + 1);
-    return (s2);
-}
-
-int **ft_env_enw(char **env, char **av)
-{
-    char **tmp;
-    
+    if (str[0] && !ft_isalpha(str[0]) && str[0] != '_')
+    {
+        printf("bash: export: `%s': not a valid identifier\n", str);
+        return (NULL);
+    }
     int i = 0;
-    tmp = malloc(sizeof(char *) * (ft_strstrlen(env) + 2));
-    while (env[i])
-    {
-        tmp[i] = ft_copy(env[i]);
+    while (str[i] && str[i] != '=')
         i++;
-    }
-    tmp[i] = ft_copy(av[1]);
-    tmp[i + 1] = NULL;
-    free(env);
-    return (tmp);
-}
-char **exporting_arg(char **env, char *arg)
-{
-    int i ;
-    
-    i = 0;
-    while (env[i])
+    if (str[i - 1] == ' ')
     {
-        if(ft_strcmp(ft_substr(env[i], 0, ft_strchr(env[i], '=') - env[i]), arg) == 0)
+        printf("bash: export: `%s': not a valid identifier\n", str);
+        return (NULL);
+    }
+    return (ft_split(str, '='));
+}
+char update_env(t_env *env, char *str)
+{
+    while (env)
+    {
+        if (ft_strcmp(env->name, str) == 0)
         {
-            if(ft_strchr(env[i], '='))
+            free(env->value);
+            env->value = ft_strdup(str);
+            return (1);
+        }
+        env = env->next;
+    }
+    return (0);
+}
+int ft_export(t_cmd *cmd)
+{
+        int i = 1;
+        char **var;
+
+        var = NULL;
+        while (cmd->cmd[i])
+        {
+            var = check_invalid_var(cmd->cmd[i]);
+            if (var)
             {
-                free(env[i]);
-                env[i] = ft_copy(arg);
+                if (!check_if_exist(cmd, var))
+                    add_new_var(&cmd->env, var);
             }
-        
-        }    return (env);
-        i++;
-    }
-    return ft_env_enw(env, &arg);
-}
-
-int ft_export(char **av,int fd)
-{
-    char **env;
-    int i = 0;
-
-    env = ft_env(NULL);
-    if(!av[1])
-        return print_expot_lis(env, fd);
-    while (av[i])
-    {
-        if(ft_strchr(av[i], '='))
-            env = exporting_arg(env, av[i]);
-        else
-        {
-            ft_putstr_fd(av[i], 2);
-            ft_putstr_fd("export: not valid in this context: ", 2);
+            i++;
         }
-        i++;
-    }
-    ft_env(env);
-    return 0;
+        return (0);
 }
 

@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:15:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/21 17:47:27 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/22 17:51:45 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,14 +70,21 @@ typedef struct s_redir{
 } t_redir;
 
 /*-----------yy---------*/
+typedef struct envirement
+{
+    char *name;
+    char *value;
+    struct envirement *next ;
+}t_env;
+
 typedef struct s_cmd 
 {
     char** cmd;
 	int fd_in;
 	int fd_out;
-	char *env;
 	int herdoc_fd;
 	t_redir redir;
+	t_env *env;
     // struct c* next;
 } t_cmd;
 /*-----------yy------------*/
@@ -99,20 +106,16 @@ typedef struct s_lexer
 }	t_lexer;
 
 
-typedef struct envirement
-{
-    char *name;
-    char *value;
-    struct envirement *next ;
-}t_env;
 
 void join_quotes(t_lexer *lx);
 int is_buildin(t_cmd *cmd);
 int ft_pwd(int fd_out);
 int ft_echo(t_cmd *cmd, int fd_out);
 int execution_builtin(t_cmd *cmd, int i);
+int ft_export(t_cmd *cmd);
 int ft_cd(t_cmd *cmd, int fd);
-int ft_env(t_cmd *cmd, int fd_out);
+int ft_unset(t_cmd *cmd);
+
 /*-----------------utils-------------------*/
 char *ft_strdup_2(char *str,int start,int finish);
 int ft_strcmp(char *s1,char *s2);

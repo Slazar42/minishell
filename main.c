@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 19:24:41 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/21 17:23:43 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/22 15:59:38 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,6 +182,7 @@ int main(int __unused ac,char **av,char **envirement)
 				delete_white_space(&lx);
 				//ft_print_lexer(&lx.head);
 				cmd = commands(&lx,cmd);
+				cmd->env = env;
 				is_buildin(cmd);
 				execution_builtin(cmd,0);
 				// printf("cmd[0] = %s\n",cmd[0].cmd[0]);

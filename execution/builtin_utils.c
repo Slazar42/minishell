@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/21 13:09:50 by yberrim           #+#    #+#             */
-/*   Updated: 2023/09/21 17:50:36 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/22 17:50:57 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,9 @@ int execution_builtin(t_cmd *cmd, int i)
         check = ft_pwd(cmd[i].fd_out);
     else if(!ft_strcmp(cmd[i].cmd[0], "cd"))
         check = ft_cd(cmd, cmd[i].fd_out);
-    // else if(!ft_strcmp(cmd[i]->cmd, "export"));
-    //     check = ft_export(cmd[i]->cmd, cmd[i]->fd_out);
-    // else if(!ft_strcmp(cmd[i]->cmd, "unset"))
-    //     check = ft_unset(cmd[i]->cmd, cmd[i]->fd_out);
-    // else if(ft_strcmp(cmd[i]->cmd, "exit"))
-    //     check = ft_exit(cmd[i]->cmd, cmd[i]->fd_out);
+    else if(!ft_strcmp(cmd[i].cmd[0], "export"))
+        check = ft_export(cmd);
+    else if (!ft_strcmp(cmd[i].cmd[0], "unset"))
+        check = ft_unset(cmd);
     return (check);
 }
