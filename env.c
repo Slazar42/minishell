@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:11:51 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/22 15:41:59 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/23 15:54:09 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,12 +77,16 @@ void ft_variables(t_env **env,char **envirement)
     }
     *env = head;
 }
-void print_env(t_env *env)
+void print_env(t_env *env, char *cmd)
 {
     while (env)
     {   
-        printf("%s=%s\n",env->name,env->value);
-        env = env->next;
+        if (cmd[0] == "env")
+        {
+            if(env->value)
+                printf("%s=%s\n",env->name,env->value);
+        }
+        env=env->next;
     }
 }
 

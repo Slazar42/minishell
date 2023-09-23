@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/21 13:09:50 by yberrim           #+#    #+#             */
-/*   Updated: 2023/09/22 17:50:57 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/23 15:52:36 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ int execution_builtin(t_cmd *cmd, int i)
         check = ft_echo(cmd, cmd[i].fd_out);
     else if(!ft_strcmp(cmd[i].cmd[0], "pwd"))
         check = ft_pwd(cmd[i].fd_out);
+    else if(!ft_strcmp(cmd[i].cmd[0],"env") || (!ft_strcmp(cmd[i].cmd[0],"export") && !ft_strcmp(cmd[i].cmd[1],"-p")))
+            print_env(cmd->env,cmd[0]);
     else if(!ft_strcmp(cmd[i].cmd[0], "cd"))
         check = ft_cd(cmd, cmd[i].fd_out);
     else if(!ft_strcmp(cmd[i].cmd[0], "export"))

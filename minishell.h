@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:15:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/22 17:51:45 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/23 15:52:49 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,7 @@ void take_env(char *str,int *i,t_lexer *lx);
 char *get_var_name(char *env);
 char *get_var_value(char *env);
 void ft_variables(t_env **env,char **envirement);
-void print_env(t_env *env);
+void print_env(t_env *env, char *cmd);
 
 // typedef struct pars
 // {

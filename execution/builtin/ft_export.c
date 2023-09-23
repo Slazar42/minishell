@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 21:50:34 by yberrim           #+#    #+#             */
-/*   Updated: 2023/09/22 16:44:20 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/23 15:41:31 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ char update_env(t_env *env, char *str)
     {
         if (ft_strcmp(env->name, str) == 0)
         {
+            printf("env->value = %s\n", env->value);
             free(env->value);
             env->value = ft_strdup(str);
             return (1);
@@ -83,6 +84,7 @@ int ft_export(t_cmd *cmd)
             {
                 if (!check_if_exist(cmd, var))
                     add_new_var(&cmd->env, var);
+                update_env(cmd->env, var[0]);
             }
             i++;
         }

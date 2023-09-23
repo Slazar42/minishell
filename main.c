@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 19:24:41 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/22 15:59:38 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/09/23 15:43:27 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,8 +167,6 @@ int main(int __unused ac,char **av,char **envirement)
 			printf("Error\n");
 		else if (check_space(line) == 0)
 			continue;
-		else if(!ft_strcmp(line,"env"))
-            print_env(env);
 		else
 		{
 			add_history(line);
