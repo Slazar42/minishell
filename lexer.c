@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 10:09:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/21 17:32:17 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/21 17:35:16 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -268,13 +268,12 @@ void Join_node_quotes(char *content, t_node **first, t_node **last, enum e_state
 	if(!(*first))
 		lx->head = new;
 }
-void take_in_dq(t_node **cur, enum e_state state, t_lexer *lx, enum e_token type)
+void take_in_dq(t_node **cur, enum e_state state, t_lexer *lx)
 {
 	char *new_cont;
 	t_node *tmp;
 	t_node *ptr;
 	tmp = (*cur);
-	(void)type;	
 	new_cont = ft_calloc(1,1);
 	(*cur) = (*cur)->next;
 	while ((*cur) && (*cur)->state == state)
@@ -301,9 +300,9 @@ void join_quotes(t_lexer *lx)
 	while (cur)
 	{
 		if (cur->type == DOUBLE_QUOTE )
-			take_in_dq(&cur, IN_DQUOTE,lx,DOUBLE_QUOTE);
+			take_in_dq(&cur, IN_DQUOTE,lx);
 		else if (cur->type == QOUTE)
-			take_in_dq(&cur ,IN_SQUOTE,lx,QOUTE);
+			take_in_dq(&cur ,IN_SQUOTE,lx);
 		else
 			cur = cur->next;
 	}
