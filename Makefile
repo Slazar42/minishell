@@ -1,10 +1,12 @@
 NAME = minishell
 
-SRCS = lexer.c main.c utils.c env.c
+SRCS = lexer.c main.c utils.c env.c ./execution/builtin_utils.c ./execution/builtin/ft_pwd.c \
+		./execution/builtin/ft_echo.c ./execution/builtin/ft_cd.c ./execution/execution.c \
+		./execution/builtin/ft_export.c  ./execution/builtin/ft_unset.c ./execution/builtin/ft_extit.c \
 
 CC = gcc
 
-CFLAGS = -Wall -Werror -Wextra -g
+CFLAGS = -Wall -Werror -Wextra -g #-fsanitize=address -g
 
 OBJS = ${SRCS:.c=.o} $(LIBFT)
 
@@ -18,7 +20,7 @@ libft_clean:
 libft_re: libft_clean my_libft
 
 $(NAME) : $(OBJS) $(LIBFT) minishell.h
-		$(CC) -fsanitize=address -g $(FLAGS) $(OBJS)  -o $(NAME) -I $(LIBFT) -lreadline
+		$(CC) -fsanitize=address -g $(FLAGS)  $(OBJS)  -o $(NAME) -I $(LIBFT) -lreadline
 clean :
 	rm -rf $(OBJS)
 

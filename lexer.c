@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 10:09:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/21 17:35:16 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/27 14:06:20 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,27 +100,21 @@ void	give_state(t_lexer *lx)
 	{
 		if(cur->type == DOUBLE_QUOTE && cur->next)
 		{
-			// cur->state = IN_DQUOTE;
 			cur = cur->next;
 			while (cur && cur->type != DOUBLE_QUOTE)
 			{
 				cur->state = IN_DQUOTE;
 				cur = cur->next;
 			}
-			// if(cur)
-			// 	cur->state = IN_DQUOTE;
 		}
 		else if(cur->type == QOUTE && cur->next)
 		{
-			// cur->state = IN_SQUOTE;
 			cur = cur->next;
 			while (cur && cur->type != QOUTE)
 			{
 				cur->state = IN_SQUOTE;
 				cur = cur->next;
 			}
-			// if(cur)
-			// 	cur->state = IN_SQUOTE;
 		}
 		if(cur)
 			cur = cur->next;
@@ -245,7 +239,7 @@ int	syntax_error(t_lexer *lst)
 	}
 	return (0);
 }
-void Join_node_quotes(char *content, t_node **first, t_node **last, enum e_state state, t_lexer *lx)
+void Join_node(char *content, t_node **first, t_node **last, enum e_state state, t_lexer *lx)
 {
 	t_node *new;
 	
@@ -281,7 +275,7 @@ void take_in_dq(t_node **cur, enum e_state state, t_lexer *lx)
 		new_cont = ft_strjoin(new_cont,(*cur)->content);
 		(*cur) = (*cur)->next;
 	}
-	Join_node_quotes(new_cont,&tmp->prev,cur,state, lx);
+	Join_node(new_cont,&tmp->prev,cur,state, lx);
 	while (tmp && tmp->state == state)
 	{
 		free(tmp->content);
@@ -291,18 +285,16 @@ void take_in_dq(t_node **cur, enum e_state state, t_lexer *lx)
 		lx->size -= 1;
 	}
 }
-
 void join_quotes(t_lexer *lx)
 {
 	t_node *cur;
 	cur = lx->head;
-
-	while (cur)
+	while(cur)
 	{
-		if (cur->type == DOUBLE_QUOTE )
-			take_in_dq(&cur, IN_DQUOTE,lx);
-		else if (cur->type == QOUTE)
-			take_in_dq(&cur ,IN_SQUOTE,lx);
+		if(cur->type == DOUBLE_QUOTE)
+			take_in_dq(&cur,IN_DQUOTE,lx);
+		else if(cur->type == QOUTE)
+			take_in_dq(&cur,IN_SQUOTE,lx);
 		else
 			cur = cur->next;
 	}
@@ -350,27 +342,66 @@ char *get_env(t_env *env,char *str)
 	free(s);
 	return(NULL);
 }
-void var_from_env(t_env *env,t_lexer *lx)
+void ft_split_env(t_lexer *lx)
 {
 	t_node *cur;
+	char **s;
+	int i;
 	
 	cur = lx->head;
 	while (cur)
 	{
-		if(cur->type == ENV && (cur->state == GENERAL || cur->state == IN_DQUOTE))
+		if(cur->type == ENV )
 		{
-			cur->content = ft_strdup(get_env(env,cur->content));
-			cur->len = ft_strlen(cur->content);
-			cur->type = WORD;
+			s = ft_split(cur->content, ' ');
+			if(s[0] && s[1])
+			{
+				free(cur->content);
+				cur->content = ft_strdup(s[0]);
+				cur->len = ft_strlen(cur->content);
+				cur->type = WORD;
+				i = 1;
+				while (s[i])
+				{
+					Join_node(s[i],&cur, &cur->next, GENERAL, lx);
+					i++;
+				}
+			}
 		}
-		else
 		cur = cur->next;
 	}
+}
+void var_from_env(t_env *env,t_lexer *lx)
+{
+	t_node *cur;
+	cur = lx->head;
+	while (cur)
+	{
+		if(cur->type == ENV && (cur->state == GENERAL || cur->state == IN_DQUOTE) && ft_strlen(cur->content) > 1)
+		{
+			if(cur->content[1] == '?')
+			{
+				free(cur->content);
+				cur->content = ft_strjoin(ft_itoa(g_exit_status),cur->content+2);
+				
+				cur->len = ft_strlen(cur->content);
+				cur->type = ENV;
+			}
+			else
+			{	
+				cur->content = ft_strdup(get_env(env,cur->content));
+				cur->len = ft_strlen(cur->content);
+				cur->type = ENV;
+			}
+		}
+		cur = cur->next;
+	}
+	ft_split_env(lx);
 }
 int lexer(char *str, t_lexer *lx, t_env *env)
 {
 	int i = 0;
-
+	(void)env;
 	while (str && str[i])
 	{
 		if(str[i] && if_token(str[i]) == 1)
@@ -383,8 +414,8 @@ int lexer(char *str, t_lexer *lx, t_env *env)
 	give_state(lx);
 	var_from_env(env,lx);
 	if (syntax_error(lx))
-		return (1);
-	return(0);
+		return (g_exit_status = 258, 1);
+	return(g_exit_status = 0, 0);
 }
 void ft_initialisation(t_lexer *lx)
 {

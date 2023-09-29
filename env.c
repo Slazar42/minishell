@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:11:51 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/14 18:19:05 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/27 14:09:21 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,9 @@ void ft_variables(t_env **env,char **envirement)
     int i;
     t_env *new;
     t_env *head;
+    g_exit_status = 0;
     i = 0;
-    
+    *env = 0;
     while (envirement[i])
     {
         new = malloc(sizeof(t_env));
@@ -77,12 +78,25 @@ void ft_variables(t_env **env,char **envirement)
     }
     *env = head;
 }
-void print_env(t_env *env)
+void print_env(t_env *env,char *cmd)
 {
+    
     while (env)
     {   
-        printf("%s=%s\n",env->name,env->value);
-        env = env->next;
+        if (ft_strcmp(cmd,"env") == 0)
+        {
+            if(env->value && ft_strlen(env->value) > 0)
+                printf("%s=%s\n",env->name,env->value);
+            
+        }
+        if(ft_strcmp(cmd,"export") == 0)
+        {
+            if(env->value && ft_strlen(env->value) > 0)
+                printf("declare -x %s=\"%s\"\n",env->name,env->value);
+            else
+                printf("declare -x %s\n",env->name);
+        }
+        env=env->next;
     }
 }
 
@@ -92,7 +106,7 @@ void take_env(char *str,int *i,t_lexer *lx)
 	char *var;
 	start = *i;
 	(*i)++;
-	while(!is_digits(str[*i]) || !is_alphabet(str[*i]) || str[*i] == '_')
+	while(!is_digits(str[*i]) || !is_alphabet(str[*i]) || str[*i] == '_' || str[*i] == '?')
 		(*i)++;
 	var = ft_strdup_2(str,start,(*i)-1);
 	add_node_to_lexer(lx,var,ENV,GENERAL);

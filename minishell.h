@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:15:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/09/21 15:46:51 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/29 02:34:22 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 # include <readline/readline.h>
 # include "my_libft/libft.h"
 
+int g_exit_status;
 enum e_state
 {
 	IN_DQUOTE,
@@ -70,13 +71,42 @@ typedef struct s_redir{
 } t_redir;
 
 /*-----------yy---------*/
-typedef struct s_cmd {
-    char** cmd;
-	int herdoc_fd;
-	t_redir redir;
-    struct c* next;
+typedef struct envirement
+{
+    char *name;
+    char *value;
+    struct envirement *next ;
+	struct envirement *prev;
+}t_env;
+
+// typedef struct c {
+//     char** argv;
+//     int in;
+//     int out;
+//     int has_pipe;
+    
+//     // redirections l8r
+// } c
+
+// ls -la > ok.txt > ok2.txt > ok3.txt | cat -e
+typedef struct s_cmd 
+{
+    char** cmd; // argv: {"cat", "-e", NULL"} 
+	int argc; // 2
+	int fd_in; // 0
+	int fd_out; // 1
+	int has_pipe; // 0
+	// >> ola >
+	out_redirs out_redir_type; // out_redir = WRITEOUT
+    // << ola <
+	in_redirs in_redir_type; // 0
+    char* in_file; // NULL
+    char* out_file; // ok3.txt
+	int herdoc_fd; 
+	t_env *env; // envierement
+    struct s_cmd *next;
 } t_cmd;
-/*-----------yy------------*/
+
 typedef struct t_node
 {
 	char			*content;
@@ -86,6 +116,7 @@ typedef struct t_node
 	struct t_node	*prev;
 	struct t_node	*next;
 }	t_node;
+/*-----------yy------------*/
 
 typedef struct s_lexer
 {
@@ -94,15 +125,18 @@ typedef struct s_lexer
 	int		  size;
 }	t_lexer;
 
-
-typedef struct envirement
-{
-    char *name;
-    char *value;
-    struct envirement *next ;
-}t_env;
-
 void join_quotes(t_lexer *lx);
+int is_buildin(t_cmd *cmd);
+int ft_pwd(int fd_out);
+int ft_echo(t_cmd *cmd, int fd_out);
+int execution_builtin(t_cmd *cmd, int i);
+int ft_export(t_cmd *cmd);
+int ft_cd(t_cmd *cmd, int fd);
+int ft_unset(t_cmd *cmd);
+int execution_proto(t_cmd *cmd, char** env);
+int ft_exit(t_cmd *cmd);
+// void creat_cmd(t_lexer *lx,t_cmd *cmd);
+
 /*-----------------utils-------------------*/
 char *ft_strdup_2(char *str,int start,int finish);
 int ft_strcmp(char *s1,char *s2);
@@ -115,7 +149,7 @@ void take_token(char *str,int *i,t_lexer *lx);
 int is_alphabet(char c);
 int is_digits(char c);
 void take_word(char *str, int *i, t_lexer *lx);
-int lexer(char *str, t_lexer *lx,t_env *env);
+int lexer(char *str, t_lexer *lx, t_env *env);
 void ft_print_lexer(t_node **head);
 void	free_list(t_lexer *lst);
 /*-----------ENVIRENEMENT-------------------*/
@@ -123,7 +157,7 @@ void take_env(char *str,int *i,t_lexer *lx);
 char *get_var_name(char *env);
 char *get_var_value(char *env);
 void ft_variables(t_env **env,char **envirement);
-void print_env(t_env *env);
+void print_env(t_env *env, char *cmd);
 
 // typedef struct pars
 // {
