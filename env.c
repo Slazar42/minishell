@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:11:51 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/02 00:20:13 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/02 20:33:01 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ char	*get_var_name(char *env)
 	name[i] = 0;
 	return (name);
 }
-
 char	*get_var_value(char *env)
 {
 	int		i;
@@ -52,7 +51,6 @@ char	*get_var_value(char *env)
 	value[j] = 0;
 	return (value);
 }
-
 void	ft_variables(t_env **env, char **envirement)
 {
 	int		i;
@@ -66,7 +64,7 @@ void	ft_variables(t_env **env, char **envirement)
 	{
 		new = malloc(sizeof(t_env));
 		new->value = get_var_value(envirement[i]);
-		new->name = get_var_name(envirement[i++]);
+		new->name = get_var_name(envirement[i]);
 		new->next = NULL;
 		if (!*env)
 		{
@@ -78,10 +76,10 @@ void	ft_variables(t_env **env, char **envirement)
 			(*env)->next = new;
 			*env = (*env)->next;
 		}
+		i++;
 	}
 	*env = head;
 }
-
 void	print_env(t_env *env, char *cmd)
 {
 	while (env)
@@ -104,9 +102,8 @@ void	print_env(t_env *env, char *cmd)
 
 void	take_env(char *str, int *i, t_lexer *lx)
 {
-	int		start;
-	char	*var;
-
+	int start;
+	char *var;
 	start = *i;
 	(*i)++;
 	while (!is_digits(str[*i]) || !is_alphabet(str[*i]) || str[*i] == '_'
