@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 19:24:41 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/04 03:27:07 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/04 22:01:36 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,10 @@ int	only_sp_tab(char *line)
 {
 	while (*line && (*line == ' ' || *line == '\t'))
 		line++;
-	return (*line ? 1 : 0);
+		if(*line == '\0')
+			return (0);
+		else
+			return (1);
 }
 int	check_space(char *line)
 {
@@ -112,6 +115,7 @@ void	check_next_next(t_node *cur)
 		close(tmp_fd);
 	}
 }
+
 void here_doc(t_node **cur, t_cmd **cmd)
 {
 	int		fd;
@@ -136,6 +140,42 @@ void here_doc(t_node **cur, t_cmd **cmd)
 	(*cmd)->in_redir_type = HEREDOC;
 	(*cur) = (*cur)->next->next;
 }
+void inside_else_if(t_cmd **cmd, int *i, int *j)
+{
+
+	(*cmd)->cmd = malloc(sizeof(char *) * ((*j) + 1));
+	(*cmd)->cmd[*j] = NULL;
+	(*cmd)->next = malloc(sizeof(t_cmd));
+	ft_memset((*cmd)->next, 0, sizeof(t_cmd));
+	*cmd = (*cmd)->next;
+	(*i)++;
+	(*cmd)->fd_out = 1;
+	*j = 0;
+}
+void boucle(t_node **cur, t_cmd **cmd, int *i, int *j)
+{
+	while ((*cur))
+	{
+		if((*cur)->type == HERE_DOC)
+		{
+			here_doc((cur), cmd);
+			(*cmd)->fd_in = open((*cmd)->in_file, O_RDONLY);
+			continue ;
+		}
+		else if ((*cur)->type == REDIR_IN || (*cur)->type == REDIR_OUT
+			|| (*cur)->type == D_REDIR_OUT)
+		{
+			check_next_next((*cur));
+			redirect(cur, (*cmd));
+			continue ;
+		}
+		else if ((*cur)->type == PIPE_LINE)
+			inside_else_if(cmd, i, j);
+		else
+			j++;
+		(*cur) = (*cur)->next;
+	}
+}
 void	create_cmd(t_lexer *lx, t_cmd *cmd)
 {
 	t_node	*cur;
@@ -146,35 +186,7 @@ void	create_cmd(t_lexer *lx, t_cmd *cmd)
 	j = 0;
 	cur = lx->head;
 	cmd->fd_out = 1;
-	while (cur)
-	{
-		if(cur->type == HERE_DOC)
-		{
-			here_doc(&cur, &cmd);
-			continue ;
-		}
-		if (cur->type == REDIR_IN || cur->type == REDIR_OUT
-			|| cur->type == D_REDIR_OUT)
-		{
-			check_next_next(cur);
-			redirect(&cur, cmd);
-			continue ;
-		}
-		if (cur->type == PIPE_LINE)
-		{
-			cmd->cmd = malloc(sizeof(char *) * (j + 1));
-			cmd->cmd[j] = NULL;
-			cmd->next = malloc(sizeof(t_cmd));
-			ft_memset(cmd->next, 0, sizeof(t_cmd));
-			cmd = cmd->next;
-			i++;
-			cmd->fd_out = 1;
-			j = 0;
-		}
-		else
-			j++;
-		cur = cur->next;
-	}
+	boucle(&cur,&cmd, &i, &j);
 	cmd->cmd = malloc(sizeof(char *) * (j + 1));
 	cmd->cmd[j] = NULL;
 	cmd->next = NULL;
@@ -330,6 +342,12 @@ int	main(int __unused ac, char __unused **av, char **envirement)
 				join_in_quote_and_word(&lx);
 				delete_white_space(&lx);
 				cmd = commands(&lx);
+				// int i=0;
+				// while (cmd->cmd[i])
+				// {
+				// 	printf("%s\n", cmd->cmd[i]);
+				// 	i++;
+				// }
 				cmd->env = env;
 				execution_proto(cmd, envirement);
 			}

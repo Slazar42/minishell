@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:15:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/04 01:57:50 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/04 20:07:27 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,12 +89,6 @@ typedef struct envirement
 // } c
 
 // ls -la > ok.txt > ok2.txt > ok3.txt | cat -e
-typedef struct s_herdoc
-{
-	char *dilim;
-	int fd;
-} t_herdoc;
-
 typedef struct s_cmd 
 {
     char** cmd; // argv: {"cat", "-e", NULL"} 
