@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 19:24:41 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/04 03:20:01 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/04 03:27:07 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,7 @@ void here_doc(t_node **cur, t_cmd **cmd)
 	char	*line;
 	char	*tmp;
 
-	fd = open("tmp", O_CREAT | O_WRONLY | O_APPEND, 0644);
+	fd = open(" ", O_CREAT | O_WRONLY | O_TRUNC, 0644);
 	while (1)
 	{
 		line = readline(">");
