@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 19:24:41 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/04 22:01:36 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/04 23:19:11 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,7 +152,7 @@ void inside_else_if(t_cmd **cmd, int *i, int *j)
 	(*cmd)->fd_out = 1;
 	*j = 0;
 }
-void boucle(t_node **cur, t_cmd **cmd, int *i, int *j)
+void boucle_alloc(t_node **cur, t_cmd **cmd, int *i, int *j)
 {
 	while ((*cur))
 	{
@@ -186,12 +186,36 @@ void	create_cmd(t_lexer *lx, t_cmd *cmd)
 	j = 0;
 	cur = lx->head;
 	cmd->fd_out = 1;
-	boucle(&cur,&cmd, &i, &j);
+	boucle_alloc(&cur,&cmd, &i, &j);
 	cmd->cmd = malloc(sizeof(char *) * (j + 1));
 	cmd->cmd[j] = NULL;
 	cmd->next = NULL;
 }
-
+void boucle_copie(t_node **cur, t_cmd **cmd, int *i, int *j)
+{
+	while ((*cur))
+	{
+		if ((*cur)->type == PIPE_LINE)
+		{
+			(*cmd)->cmd[*j] = NULL;
+			*j = 0;
+			(*i)++;
+			(*cmd) = (*cmd)->next;
+		}
+		else if ((*cur)->type == REDIR_IN || (*cur)->type == REDIR_OUT
+			|| (*cur)->type == D_REDIR_OUT || (*cur)->type == HERE_DOC
+			|| ((*cur)->type == WORD && (*cur)->prev && 
+			((*cur)->prev->type == REDIR_IN || (*cur)->prev->type == REDIR_OUT 
+			|| (*cur)->prev->type == D_REDIR_OUT || (*cur)->prev->type == HERE_DOC)))
+		{
+			*cur = (*cur)->next->next;
+			continue ;
+		}
+		else
+			(*cmd)->cmd[(*j)++] = ft_strdup((*cur)->content);
+		(*cur) = (*cur)->next;
+	}
+}
 t_cmd	*commands(t_lexer *lx)
 {
 	t_node	*cur;
@@ -207,32 +231,7 @@ t_cmd	*commands(t_lexer *lx)
 	head = cmd;
 	create_cmd(lx, cmd);
 	cur = lx->head;
-	while (cur)
-	{
-		if (cur->type == PIPE_LINE)
-		{
-			cmd->cmd[j] = NULL;
-			i++;
-			j = 0;
-			cmd = cmd->next;
-		}
-		else if (cur->type == REDIR_IN || cur->type == REDIR_OUT
-			|| cur->type == D_REDIR_OUT || cur->type == HERE_DOC
-			|| (cur->type == WORD && cur->prev && (cur->prev->type == REDIR_IN
-					|| cur->prev->type == REDIR_OUT
-					|| cur->prev->type == D_REDIR_OUT
-					|| cur->prev->type == HERE_DOC)))
-		{
-			cur = cur->next->next;
-			continue ;
-		}
-		else
-		{
-			cmd->cmd[j] = ft_strdup(cur->content);
-			j++;
-		}
-		cur = cur->next;
-	}
+	boucle_copie(&cur, &cmd, &i, &j);
 	cmd->cmd[j] = NULL;
 	return (head);
 }
