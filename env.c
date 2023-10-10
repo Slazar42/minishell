@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:11:51 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/02 20:33:01 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/10/10 16:43:14 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,9 +58,9 @@ void	ft_variables(t_env **env, char **envirement)
 	t_env	*head;
 
 	g_exit_status = 0;
-	i = 0;
+	i = -1;
 	*env = 0;
-	while (envirement[i])
+	while (envirement[++i])
 	{
 		new = malloc(sizeof(t_env));
 		new->value = get_var_value(envirement[i]);
@@ -76,25 +76,42 @@ void	ft_variables(t_env **env, char **envirement)
 			(*env)->next = new;
 			*env = (*env)->next;
 		}
-		i++;
 	}
 	*env = head;
 }
-void	print_env(t_env *env, char *cmd)
+void	print_env(t_cmd *cm, t_env *env, char *cmd)
 {
 	while (env)
 	{
 		if (ft_strcmp(cmd, "env") == 0)
 		{
 			if (env->value && ft_strlen(env->value) > 0)
-				printf("%s=%s\n", env->name, env->value);
+			{
+				ft_putstr_fd(env->name, cm->fd_out);
+				ft_putstr_fd("=", cm->fd_out);
+				ft_putstr_fd(env->value, cm->fd_out);
+				ft_putstr_fd("\n", cm->fd_out);
+			}
+				// printf("%s=%s\n", env->name, env->value);
 		}
 		if (ft_strcmp(cmd, "export") == 0)
 		{
 			if (env->value && ft_strlen(env->value) > 0)
-				printf("declare -x %s=\"%s\"\n", env->name, env->value);
+			{
+				ft_putstr_fd("declare -x ", cm->fd_out);
+				ft_putstr_fd(env->name, cm->fd_out);
+				ft_putstr_fd("=\"", cm->fd_out);
+				ft_putstr_fd(env->value, cm->fd_out);
+				ft_putstr_fd("\"\n", cm->fd_out);
+			}
+				// printf("declare -x %s=\"%s\"\n", env->name, env->value);
 			else
-				printf("declare -x %s\n", env->name);
+			{
+				ft_putstr_fd("declare -x ", cm->fd_out);
+				ft_putstr_fd(env->name, cm->fd_out);
+				ft_putstr_fd("\n", cm->fd_out);
+			}
+				// printf("declare -x %s\n", env->name);
 		}
 		env = env->next;
 	}

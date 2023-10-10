@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 10:09:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/04 03:20:15 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/10 20:07:31 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,12 +69,14 @@ void	take_token(char *str, int *i, t_lexer *lx)
 		add_node_to_lexer(lx, token, REDIR_OUT, GENERAL);
 	else if (str[*i] == REDIR_OUT && str[(*i) + 1] == REDIR_OUT)
 	{
-		add_node_to_lexer(lx, ">>", D_REDIR_OUT, GENERAL);
+		add_node_to_lexer(lx, ft_strdup(">>"), D_REDIR_OUT, GENERAL);
+		free(token);
 		(*i)++;
 	}
 	else if (str[*i] == REDIR_IN && str[(*i) + 1] == REDIR_IN)
 	{
-		add_node_to_lexer(lx, "<<", HERE_DOC, GENERAL);
+		add_node_to_lexer(lx, ft_strdup("<<"), HERE_DOC, GENERAL);
+		free(token);
 		(*i)++;
 	}
 	(*i)++;
@@ -252,7 +254,7 @@ void	Join_node(char *content, t_node **first, t_node **last,
 	t_node	*new;
 
 	new = malloc(sizeof(t_node));
-	new->content = ft_substr(content, 0, ft_strlen(content));
+	new->content = content;
 	new->next = NULL;
 	new->prev = NULL;
 	new->len = ft_strlen(new->content);
@@ -285,7 +287,7 @@ void	take_in_dq(t_node **cur, enum e_state state, t_lexer *lx)
 		(*cur) = (*cur)->next;
 	}
 	Join_node(new_cont, &tmp->prev, cur, state, lx);
-	while (tmp && tmp->state == state)
+	while (tmp && tmp != (*cur))
 	{
 		free(tmp->content);
 		ptr = tmp->next;
@@ -338,17 +340,31 @@ void	delete_white_space(t_lexer *lx)
 			cur = cur->next;
 	}
 }
+int ft_strcmp_EOF(char *s1,char *s2)
+{
+	int i;
+	i = 0;
+	while (s1[i] && s2[i] && s1[i] == s2[i])
+		i++;
+	if(!s1[i] && !s2[i])
+		return (0);
+	return (1);
+}
 char	*get_env(t_env *env, char *str)
 {
 	t_env	*cur;
 	char	*s;
 
 	s = ft_strdup(str + 1);
+	free(str);
 	cur = env;
 	while (cur)
 	{
-		if (!ft_strncmp(cur->name, (str + 1), ft_strlen(s)))
+		if (!ft_strcmp_EOF(cur->name, (str + 1)))
+		{
+			free(s);	
 			return (cur->value);
+		}
 		cur = cur->next;
 	}
 	free(s);
@@ -363,7 +379,8 @@ void	var_from_env(t_env *env, t_lexer *lx)
 	while (cur)
 	{
 		if (cur->type == ENV && (cur->state == GENERAL
-				|| cur->state == IN_DQUOTE) && ft_strlen(cur->content) > 1)
+				|| cur->state == IN_DQUOTE) && ft_strlen(cur->content) > 1 
+				&& skip_spaces(cur->prev, 'l')->type != HERE_DOC)
 		{
 			if (cur->content[1] == '?')
 			{

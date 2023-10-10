@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:15:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/04 20:07:27 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/10 16:41:05 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 # include <stdio.h>
 # include <readline/history.h>
 # include <readline/readline.h>
-# include <signal.h> 
+# include <signal.h>
 # include <stdlib.h>
 
 int g_exit_status;
@@ -97,6 +97,7 @@ typedef struct s_cmd
 	int fd_in; // 0
 	int fd_out; // 1
 	int has_pipe; // 0
+	int	child_pid;
 	// >> ola >
 	out_redirs out_redir_type; // out_redir = WRITEOUT
     // << ola <
@@ -104,7 +105,6 @@ typedef struct s_cmd
     char* in_file; // NULL
     char* out_file; // ok3.txt
 	int herdoc_fd; 
-	// t_herdoc herdoc;
 	t_env *env; // envierement
     struct s_cmd *next;
 } t_cmd;
@@ -129,19 +129,26 @@ typedef struct s_lexer
 
 void join_quotes(t_lexer *lx);
 int is_buildin(t_cmd *cmd);
+void free_double(char **str);
+char	**lincke_list_toaraay(t_env *env);
 int ft_pwd(int fd_out);
 int ft_echo(t_cmd *cmd, int fd_out);
 int execution_builtin(t_cmd *cmd, int i);
+char	*ft_genv(t_env *env, char *str);
 int ft_export(t_cmd *cmd);
 int ft_cd(t_cmd *cmd, int fd);
+char** lincke_list_toaraay(t_env *env);
 int ft_unset(t_cmd *cmd);
+size_t	ft_envsize(t_env *env);
 int execution_proto(t_cmd *cmd, char** env);
 int ft_exit(t_cmd *cmd);
 void	add_new_var(t_env *env, char **var);
 int	check_if_exist(t_cmd *cmd, char **var);
-char* find_abs_path(char* cmd);
+char	*find_abs_path(t_env *env ,char *cmd);
+char *ft_genv(t_env *env, char *str);
 char	**check_invalid_var(char *str);
 void check_redirections(t_cmd* cmd) ;
+char *ft_genv(t_env *env, char *str);
 // void creat_cmd(t_lexer *lx,t_cmd *cmd);
 
 /*-----------------utils-------------------*/
@@ -164,7 +171,7 @@ void take_env(char *str,int *i,t_lexer *lx);
 char *get_var_name(char *env);
 char *get_var_value(char *env);
 void ft_variables(t_env **env,char **envirement);
-void print_env(t_env *env, char *cmd);
+void print_env(t_cmd *cm ,t_env *env, char *cmd);
 
 // typedef struct pars
 // {

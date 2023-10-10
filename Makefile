@@ -3,13 +3,14 @@ NAME = minishell
 SRCS = lexer.c main.c utils.c env.c ./execution/builtin_utils.c ./execution/builtin/ft_pwd.c \
 		./execution/builtin/ft_echo.c ./execution/builtin/ft_cd.c ./execution/execution.c \
 		./execution/builtin/ft_export.c  ./execution/builtin/ft_unset.c ./execution/builtin/ft_extit.c \
-		./execution/builtin/export_utils.c ./execution/find_path.c ./execution/redirection.c
+		./execution/builtin/export_utils.c ./execution/find_path.c ./execution/redirection.c \
+		./execution/path_utils.c
 
 CC = cc
 
-CFLAGS = -Wall -Werror -Wextra -g #-fsanitize=address -g
+CFLAGS = -Wall -Werror -Wextra # -fsanitize=address -g
 GG = -lreadline 
-LDFLAGS="-L/Users/yberrim/.brew/opt/readline/lib" #-fsanitize=address
+LDFLAGS="-L/Users/yberrim/.brew/opt/readline/lib"
 CPPFLAGS="-I/Users/yberrim/.brew/opt/readline/include"
 OBJS = ${SRCS:.c=.o} $(LIBFT)
 
@@ -23,7 +24,7 @@ libft_clean:
 libft_re: libft_clean my_libft
 
 $(NAME) : $(OBJS) $(LIBFT) minishell.h
-		$(CC) -fsanitize=address -g $(FLAGS) $(OBJS)  -o $(NAME) -I $(LIBFT) ${GG} $(LDFLAGS) $(CPPFLAGS)
+		$(CC) $(CFLAGS) $(OBJS)  -o $(NAME) -I $(LIBFT) ${GG} $(LDFLAGS) $(CPPFLAGS)
 clean :
 	rm -rf $(OBJS)
 

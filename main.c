@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 19:24:41 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/04 23:19:11 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/10 19:17:53 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,7 @@ int	only_sp_tab(char *line)
 {
 	while (*line && (*line == ' ' || *line == '\t'))
 		line++;
-		if(*line == '\0')
-			return (0);
-		else
-			return (1);
+	return (*line ? 1 : 0);
 }
 int	check_space(char *line)
 {
@@ -74,33 +71,33 @@ void	init_cmd_struct(t_cmd **cmd)
 	(*cmd)->cmd = NULL;
 	(*cmd)->fd_in = 0;
 	(*cmd)->fd_out = 1;
-	// (*cmd)->redir.in_file = NULL;
-	// (*cmd)->redir.out_file = NULL;
+	(*cmd)->in_file = NULL;
+	(*cmd)->out_file = NULL;
 }
 void	redirect(t_node **cur, t_cmd *cmd)
 {
 	if ((*cur)->type == REDIR_IN)
 	{
-		if (!cmd->in_file)
+		if (cmd->in_file)
 			free(cmd->in_file);
 		cmd->in_file = ft_strdup((*cur)->next->content);
 		cmd->in_redir_type = READIN;
 	}
 	else if ((*cur)->type == REDIR_OUT)
 	{
-		if (!cmd->out_file)
+		if (cmd->out_file)
 			free(cmd->out_file);
 		cmd->out_file = ft_strdup((*cur)->next->content);
 		cmd->out_redir_type = WRITEOUT;
 	}
 	else if ((*cur)->type == D_REDIR_OUT)
 	{
-		if (!cmd->out_file)
+		if (cmd->out_file)
 			free(cmd->out_file);
 		cmd->out_file = ft_strdup((*cur)->next->content);
 		cmd->out_redir_type = APPENDOUT;
 	}
-	(*cur) = (*cur)->next->next;	
+	(*cur) = (*cur)->next->next;
 }
 
 void	check_next_next(t_node *cur)
@@ -115,66 +112,29 @@ void	check_next_next(t_node *cur)
 		close(tmp_fd);
 	}
 }
-
 void here_doc(t_node **cur, t_cmd **cmd)
 {
-	int		fd;
-	char	*line;
-	char	*tmp;
+    int        fd;
+    char    *line;
+    char    *tmp;
 
-	fd = open(" ", O_CREAT | O_WRONLY | O_TRUNC, 0644);
-	while (1)
-	{
-		line = readline(">");
-		if (ft_strcmp(line, (*cur)->next->content) == 0)
-		{
-			free(line);
-			break ;
-		}
-		tmp = ft_strjoin(line, "\n");
-		write(fd, tmp, ft_strlen(tmp));
-		free(tmp);
-	}
-	close(fd);
-	(*cmd)->in_file = ft_strdup(tmp);
-	(*cmd)->in_redir_type = HEREDOC;
-	(*cur) = (*cur)->next->next;
-}
-void inside_else_if(t_cmd **cmd, int *i, int *j)
-{
-
-	(*cmd)->cmd = malloc(sizeof(char *) * ((*j) + 1));
-	(*cmd)->cmd[*j] = NULL;
-	(*cmd)->next = malloc(sizeof(t_cmd));
-	ft_memset((*cmd)->next, 0, sizeof(t_cmd));
-	*cmd = (*cmd)->next;
-	(*i)++;
-	(*cmd)->fd_out = 1;
-	*j = 0;
-}
-void boucle_alloc(t_node **cur, t_cmd **cmd, int *i, int *j)
-{
-	while ((*cur))
-	{
-		if((*cur)->type == HERE_DOC)
-		{
-			here_doc((cur), cmd);
-			(*cmd)->fd_in = open((*cmd)->in_file, O_RDONLY);
-			continue ;
-		}
-		else if ((*cur)->type == REDIR_IN || (*cur)->type == REDIR_OUT
-			|| (*cur)->type == D_REDIR_OUT)
-		{
-			check_next_next((*cur));
-			redirect(cur, (*cmd));
-			continue ;
-		}
-		else if ((*cur)->type == PIPE_LINE)
-			inside_else_if(cmd, i, j);
-		else
-			j++;
-		(*cur) = (*cur)->next;
-	}
+    fd = open("/tmp/heredoc", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    while (1)
+    {
+        line = readline(">");
+        if (ft_strcmp(line, (*cur)->next->content) == 0)
+        {
+            free(line);
+            break ;
+        }
+        tmp = ft_strjoin(line, "\n");
+        write(fd, tmp, ft_strlen(tmp));
+        free(tmp);
+    }
+    close(fd);
+    (*cmd)->in_file = ft_strdup("/tmp/heredoc");
+    (*cmd)->in_redir_type = HEREDOC;
+    (*cur) = (*cur)->next->next;
 }
 void	create_cmd(t_lexer *lx, t_cmd *cmd)
 {
@@ -186,36 +146,40 @@ void	create_cmd(t_lexer *lx, t_cmd *cmd)
 	j = 0;
 	cur = lx->head;
 	cmd->fd_out = 1;
-	boucle_alloc(&cur,&cmd, &i, &j);
+	while (cur)
+	{
+		if(cur->type == HERE_DOC)
+        {
+            here_doc(&cur, &cmd);
+            continue ;
+        }
+		if (cur->type == REDIR_IN || cur->type == REDIR_OUT
+			|| cur->type == D_REDIR_OUT)
+		{
+			check_next_next(cur);
+			redirect(&cur, cmd);
+			continue ;
+		}
+		if (cur->type == PIPE_LINE)
+		{
+			cmd->cmd = malloc(sizeof(char *) * (j + 1));
+			cmd->cmd[j] = NULL;
+			cmd->next = malloc(sizeof(t_cmd));
+			ft_memset(cmd->next, 0, sizeof(t_cmd));
+			cmd = cmd->next;
+			i++;
+			cmd->fd_out = 1;
+			j = 0;
+		}
+		else
+			j++;
+		cur = cur->next;
+	}
 	cmd->cmd = malloc(sizeof(char *) * (j + 1));
 	cmd->cmd[j] = NULL;
 	cmd->next = NULL;
 }
-void boucle_copie(t_node **cur, t_cmd **cmd, int *i, int *j)
-{
-	while ((*cur))
-	{
-		if ((*cur)->type == PIPE_LINE)
-		{
-			(*cmd)->cmd[*j] = NULL;
-			*j = 0;
-			(*i)++;
-			(*cmd) = (*cmd)->next;
-		}
-		else if ((*cur)->type == REDIR_IN || (*cur)->type == REDIR_OUT
-			|| (*cur)->type == D_REDIR_OUT || (*cur)->type == HERE_DOC
-			|| ((*cur)->type == WORD && (*cur)->prev && 
-			((*cur)->prev->type == REDIR_IN || (*cur)->prev->type == REDIR_OUT 
-			|| (*cur)->prev->type == D_REDIR_OUT || (*cur)->prev->type == HERE_DOC)))
-		{
-			*cur = (*cur)->next->next;
-			continue ;
-		}
-		else
-			(*cmd)->cmd[(*j)++] = ft_strdup((*cur)->content);
-		(*cur) = (*cur)->next;
-	}
-}
+
 t_cmd	*commands(t_lexer *lx)
 {
 	t_node	*cur;
@@ -231,7 +195,32 @@ t_cmd	*commands(t_lexer *lx)
 	head = cmd;
 	create_cmd(lx, cmd);
 	cur = lx->head;
-	boucle_copie(&cur, &cmd, &i, &j);
+	while (cur)
+	{
+		if (cur->type == PIPE_LINE)
+		{
+			cmd->cmd[j] = NULL;
+			i++;
+			j = 0;
+			cmd = cmd->next;
+		}
+		else if (cur->type == REDIR_IN || cur->type == REDIR_OUT
+			|| cur->type == D_REDIR_OUT || cur->type == HERE_DOC
+			|| (cur->type == WORD && cur->prev && (cur->prev->type == REDIR_IN
+					|| cur->prev->type == REDIR_OUT
+					|| cur->prev->type == D_REDIR_OUT
+					|| cur->prev->type == HERE_DOC)))
+		{
+			cur = cur->next->next;
+			continue ;
+		}
+		else
+		{
+			cmd->cmd[j] = ft_strdup(cur->content);
+			j++;
+		}
+		cur = cur->next;
+	}
 	cmd->cmd[j] = NULL;
 	return (head);
 }
@@ -308,6 +297,82 @@ void	setup_signal_handlers(void)
 	sigaction(SIGQUIT, &sa, NULL);
 	signal(SIGQUIT, SIG_IGN);
 }
+
+void ft_free_array(char **array)
+{
+    int i;
+
+    i = 0;
+    while (array[i])
+    {
+        free(array[i]);
+        i++;
+    }
+	if (array)
+    	free(array);
+}
+
+void    destroy_cmd(t_cmd *cmd)
+{
+    t_cmd    *tmp;
+
+    while (cmd)
+    {
+        tmp = cmd->next;
+        ft_free_array(cmd->cmd);
+		if (cmd->in_file)
+			free(cmd->in_file);
+		if (cmd->out_file)
+			free(cmd->out_file);
+        free(cmd);
+        cmd = tmp;
+    }
+}
+
+void destroy_t_node(t_lexer *lx)
+{
+    t_node *tmp;
+    t_node *cur;
+
+    cur = lx->head;
+    while (cur)
+    {
+        tmp = cur->next;
+		if(cur->content)
+        	free(cur->content);
+        free(cur);
+        cur = tmp;
+    }
+    lx->head = NULL;
+    lx->tail = NULL;
+}
+int access_check(t_cmd *cmd)
+{
+	t_cmd *cur;
+
+	cur = cmd;
+	while (cur)
+	{
+		if (cur->in_redir_type == APPENDOUT || cur->in_redir_type == WRITEOUT)
+		{
+			if (access(cur->in_file, F_OK) == -1)
+			{
+				printf("minishell: %s: No such file or directory\n", cur->in_file);
+				return (1);
+			}
+		}
+		else if (cur->in_redir_type == READIN)
+		{
+			if (access(cur->in_file, F_OK) == -1)
+			{
+				printf("minishell: %s: No such file or directory\n", cur->in_file);
+				return (1);
+			}
+		}
+		cur = cur->next;
+	}
+	return (0);
+}
 int	main(int __unused ac, char __unused **av, char **envirement)
 {
 	char	*line;
@@ -320,10 +385,7 @@ int	main(int __unused ac, char __unused **av, char **envirement)
 	setup_signal_handlers();
 	while (1)
 	{
-		if(env == NULL)
-		{
-			ft_variables(&env, envirement);
-		}
+		
 		ft_initialisation(&lx);
 		line = readline("minishell $-> ");
 		if (!line)
@@ -341,30 +403,20 @@ int	main(int __unused ac, char __unused **av, char **envirement)
 				join_in_quote_and_word(&lx);
 				delete_white_space(&lx);
 				cmd = commands(&lx);
-				// int i=0;
-				// while (cmd->cmd[i])
-				// {
-				// 	printf("%s\n", cmd->cmd[i]);
-				// 	i++;
-				// }
+				if(access_check(cmd))
+				{
+					destroy_cmd(cmd);
+					continue ;
+				}
 				cmd->env = env;
-				execution_proto(cmd, envirement);
+				char **str = lincke_list_toaraay(env);
+				execution_proto(cmd, str);
+				free_double(str);
+				destroy_cmd(cmd);
 			}
 		}
+		destroy_t_node(&lx);
+		if (line)
+			free(line);
 	}
-	if (line)
-		free(line);
 }
-
-
-// while (cmd->dilim[i])
-// {
-// 	ptr = heredoc();
-// 	if (cmd->dilim[i + 1] != NULL)
-// 	str = NULL;
-// 	str = ft_strjoin(str, ptr);
-// 	if (cmd->dilim[i] == ptr)
-// 		i++;
-// }
-
-// ["haitam"][NULL]

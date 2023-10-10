@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 15:45:30 by yberrim           #+#    #+#             */
-/*   Updated: 2023/10/02 15:46:55 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/10/10 17:11:45 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,14 +94,14 @@ char	**check_invalid_var(char *str)
 		ft_putstr_fd("bash: export: `", 2);
 		ft_putstr_fd(str, 2);
 		ft_putstr_fd("': not a valid identifier\n", 2);
-		return (NULL);
+		return (g_exit_status = 1, NULL);
 	}
 	i = 0;
 	index_equal(str);
 	if (str[i - 1] == '-')
 	{
 		perror("bash: export: `-': not a valid identifier\n");
-		return (NULL);
+		return (g_exit_status = 1, NULL);
 	}
 	return (ssplit(str));
 }
