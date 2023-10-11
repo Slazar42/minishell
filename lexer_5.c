@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/10 21:48:07 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/10 21:54:01 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/11 02:29:55 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,8 +95,6 @@ void	delete_white_space(t_lexer *lx)
 				cur->next->prev = cur->prev;
 			if (cur == lx->head)
 				lx->head = cur->next;
-			if (cur == lx->tail)
-				lx->tail = cur->prev;
 			free(cur->content);
 			free(cur);
 			lx->size -= 1;

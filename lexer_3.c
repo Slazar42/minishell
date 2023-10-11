@@ -6,39 +6,36 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/10 21:43:38 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/10 21:44:49 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/11 02:22:09 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	give_state(t_lexer *lx)
+void	give_state(t_node	**cur)
 {
-	t_node	*cur;
-
-	cur = lx->head;
-	while (cur && cur->next)
+	while ((*cur) && (*cur)->next)
 	{
-		if (cur->type == DOUBLE_QUOTE && cur->next)
+		if ((*cur)->type == DOUBLE_QUOTE && (*cur)->next)
 		{
-			cur = cur->next;
-			while (cur && cur->type != DOUBLE_QUOTE)
+			(*cur) = (*cur)->next;
+			while ((*cur) && (*cur)->type != DOUBLE_QUOTE)
 			{
-				cur->state = IN_DQUOTE;
-				cur = cur->next;
+				(*cur)->state = IN_DQUOTE;
+				(*cur) = (*cur)->next;
 			}
 		}
-		else if (cur->type == QOUTE && cur->next)
+		else if ((*cur)->type == QOUTE && (*cur)->next)
 		{
-			cur = cur->next;
-			while (cur && cur->type != QOUTE)
+			(*cur) = (*cur)->next;
+			while ((*cur) && (*cur)->type != QOUTE)
 			{
-				cur->state = IN_SQUOTE;
-				cur = cur->next;
+				(*cur)->state = IN_SQUOTE;
+				(*cur) = (*cur)->next;
 			}
 		}
-		if (cur)
-			cur = cur->next;
+		if ((*cur))
+			(*cur) = (*cur)->next;
 	}
 }
 void	free_list(t_lexer *lst)
@@ -75,6 +72,7 @@ t_node	*skip_spaces(t_node *elem, char direction)
 	}
 	return (elem);
 }
+
 int	pipe_err(t_node *elem)
 {
 	t_node	*next;

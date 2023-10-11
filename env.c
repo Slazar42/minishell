@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:11:51 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/10 16:43:14 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/10/11 03:00:02 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ char	*get_var_name(char *env)
 	name[i] = 0;
 	return (name);
 }
+
 char	*get_var_value(char *env)
 {
 	int		i;
@@ -51,6 +52,7 @@ char	*get_var_value(char *env)
 	value[j] = 0;
 	return (value);
 }
+
 void	ft_variables(t_env **env, char **envirement)
 {
 	int		i;
@@ -79,6 +81,7 @@ void	ft_variables(t_env **env, char **envirement)
 	}
 	*env = head;
 }
+
 void	print_env(t_cmd *cm, t_env *env, char *cmd)
 {
 	while (env)
@@ -92,7 +95,6 @@ void	print_env(t_cmd *cm, t_env *env, char *cmd)
 				ft_putstr_fd(env->value, cm->fd_out);
 				ft_putstr_fd("\n", cm->fd_out);
 			}
-				// printf("%s=%s\n", env->name, env->value);
 		}
 		if (ft_strcmp(cmd, "export") == 0)
 		{
@@ -104,14 +106,12 @@ void	print_env(t_cmd *cm, t_env *env, char *cmd)
 				ft_putstr_fd(env->value, cm->fd_out);
 				ft_putstr_fd("\"\n", cm->fd_out);
 			}
-				// printf("declare -x %s=\"%s\"\n", env->name, env->value);
 			else
 			{
 				ft_putstr_fd("declare -x ", cm->fd_out);
 				ft_putstr_fd(env->name, cm->fd_out);
-				ft_putstr_fd("\n", cm->fd_out);
+				ft_putstr_fd("=\"\"\n", cm->fd_out);
 			}
-				// printf("declare -x %s\n", env->name);
 		}
 		env = env->next;
 	}

@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/10 21:47:18 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/10 21:47:33 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/11 02:24:17 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,33 +59,30 @@ t_node	*check_quotes(t_node **node, enum e_token quote)
 	return (*node);
 }
 
-int	syntax_error(t_lexer *lst)
+int	syntax_error(t_node **cur)
 {
-	t_node	*cur;
-
-	cur = lst->head;
-	while (cur)
+	while ((*cur))
 	{
-		if (cur->type == PIPE_LINE)
+		if ((*cur)->type == PIPE_LINE)
 		{
-			if (pipe_err(cur))
+			if (pipe_err((*cur)))
 				return (ft_perr("minishell: syntax error near "
 								"unexpected token `|'",
 								0));
 		}
-		else if (if_redirection(cur->type))
+		else if (if_redirection((*cur)->type))
 		{
-			if (redir_err(cur))
+			if (redir_err((*cur)))
 				return (ft_perr("minishell: syntax error near "
 								"unexpected token ",
-								get_token(cur->type)));
+								get_token((*cur)->type)));
 		}
-		else if (cur->type == DOUBLE_QUOTE || cur->type == QOUTE)
+		else if ((*cur)->type == DOUBLE_QUOTE || (*cur)->type == QOUTE)
 		{
-			if (!check_quotes(&cur, cur->type))
+			if (!check_quotes(&(*cur), (*cur)->type))
 				return (1);
 		}
-		cur = cur->next;
+		(*cur) = (*cur)->next;
 	}
 	return (0);
 }
