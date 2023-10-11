@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:15:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/10 16:41:05 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/10/10 21:58:11 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,10 +161,26 @@ void delete_white_space(t_lexer *lx);
 void add_node_to_lexer(t_lexer *lx,char *word,enum e_token token,enum e_state state);
 void take_token(char *str,int *i,t_lexer *lx);
 int is_alphabet(char c);
+void	Join_node(char *content, t_node **first, t_node **last, enum e_state state, t_lexer *lx);
+int	redir_err(t_node *ptr);
+void	take_in_dq(t_node **cur, enum e_state state, t_lexer *lx);
+void	give_state(t_lexer *lx);
+int	pipe_err(t_node *elem);
 int is_digits(char c);
 void take_word(char *str, int *i, t_lexer *lx);
+void	join_quotes(t_lexer *lx);
+int	ft_perr(char *str, char *token);
+t_node	*check_quotes(t_node **node, enum e_token quote);
+char	*get_token(enum e_token type);
+int	if_redirection(enum e_token type);
+void	var_from_env(t_env *env, t_lexer *lx);
+void	delete_white_space(t_lexer *lx);
+int	syntax_error(t_lexer *lst);
+char	*get_env(t_env *env, char *str);
+t_node	*skip_spaces(t_node *elem, char direction);
 int lexer(char *str, t_lexer *lx, t_env *env);
 void ft_print_lexer(t_node **head);
+int ft_strcmp_EOF(char *s1,char *s2);
 void	free_list(t_lexer *lst);
 /*-----------ENVIRENEMENT-------------------*/
 void take_env(char *str,int *i,t_lexer *lx);
