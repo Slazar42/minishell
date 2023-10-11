@@ -6,20 +6,19 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 10:09:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/11 02:23:43 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/11 03:13:19 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void inside_if_question_mark(t_node **cur)
+void	inside_if_question_mark(t_node **cur)
 {
-
-	(*cur)->content = ft_strjoin(ft_itoa(g_exit_status), (*cur)->content
-			+ 2);
+	(*cur)->content = ft_strjoin(ft_itoa(g_exit_status), (*cur)->content + 2);
 	(*cur)->len = ft_strlen((*cur)->content);
 	(*cur)->type = ENV;
 }
+
 void	var_from_env(t_env *env, t_lexer *lx)
 {
 	t_node	*cur;
@@ -27,10 +26,11 @@ void	var_from_env(t_env *env, t_lexer *lx)
 	cur = lx->head;
 	while (cur)
 	{
-		if (cur->type == ENV && (cur->state == GENERAL|| cur->state == IN_DQUOTE) && ft_strlen(cur->content) > 1)
+		if (cur->type == ENV && (cur->state == GENERAL
+				|| cur->state == IN_DQUOTE) && ft_strlen(cur->content) > 1)
 		{
 			if (cur->prev && skip_spaces(cur->prev, 'l')->type == HERE_DOC)
-				break;
+				break ;
 			if (cur->content[1] == '?')
 				inside_if_question_mark(&cur);
 			else
@@ -46,7 +46,7 @@ void	var_from_env(t_env *env, t_lexer *lx)
 
 int	lexer(char *str, t_lexer *lx, t_env *env)
 {
-	int	i;
+	int		i;
 	t_node	*head;
 
 	i = 0;

@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/10 21:43:49 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/10 21:50:16 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/11 05:38:07 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,10 +62,10 @@ void	take_token(char *str, int *i, t_lexer *lx)
 	else if (str[*i] == TAB)
 		add_node_to_lexer(lx, token, TAB, GENERAL);
 	else if (str[*i] == REDIR_IN && str[(*i) + 1] != REDIR_IN && str[(*i)
-		- 1] != REDIR_IN)
+			- 1] != REDIR_IN)
 		add_node_to_lexer(lx, token, REDIR_IN, GENERAL);
 	else if (str[*i] == REDIR_OUT && str[(*i) + 1] != REDIR_OUT && str[(*i)
-		- 1] != REDIR_OUT)
+			- 1] != REDIR_OUT)
 		add_node_to_lexer(lx, token, REDIR_OUT, GENERAL);
 	else if (str[*i] == REDIR_OUT && str[(*i) + 1] == REDIR_OUT)
 	{
@@ -88,6 +88,7 @@ int	is_alphabet(char c)
 		return (0);
 	return (1);
 }
+
 void	take_word(char *str, int *i, t_lexer *lx)
 {
 	int		start;
