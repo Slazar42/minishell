@@ -5,14 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/11 01:55:21 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/11 01:55:26 by slazar           ###   ########.fr       */
+/*   Created: 2023/10/11 22:57:49 by slazar            #+#    #+#             */
+/*   Updated: 2023/10/11 23:16:27 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	redirect(t_node **cur, t_cmd *cmd)
+int	redirect(t_node **cur, t_cmd *cmd)
 {
 	if ((*cur)->type == REDIR_IN)
 	{
@@ -36,9 +36,10 @@ void	redirect(t_node **cur, t_cmd *cmd)
 		cmd->out_redir_type = APPENDOUT;
 	}
 	(*cur) = (*cur)->next->next;
+	return (1);
 }
 
-void	check_next_next(t_node *cur)
+int	check_next_next(t_node *cur)
 {
 	int	tmp_fd;
 
@@ -49,9 +50,10 @@ void	check_next_next(t_node *cur)
 		tmp_fd = open(cur->next->content, O_CREAT | O_WRONLY | O_APPEND, 0644);
 		close(tmp_fd);
 	}
+	return (1);
 }
 
-void	here_doc(t_node **cur, t_cmd **cmd)
+int	here_doc(t_node **cur, t_cmd **cmd)
 {
 	int		fd;
 	char	*line;
@@ -74,40 +76,40 @@ void	here_doc(t_node **cur, t_cmd **cmd)
 	(*cmd)->in_file = ft_strdup("/tmp/heredoc");
 	(*cmd)->in_redir_type = HEREDOC;
 	(*cur) = (*cur)->next->next;
+	return (1);
 }
 
-void	inside_if(t_cmd **cmd, int *i, int *j)
+void	treat_cmd(t_node *cur, t_cmd *cmd, int i, int j)
 {
-	(*cmd)->cmd = malloc(sizeof(char *) * (*j + 1));
-	(*cmd)->cmd[*j] = NULL;
-	(*cmd)->next = malloc(sizeof(t_cmd));
-	ft_memset((*cmd)->next, 0, sizeof(t_cmd));
-	(*cmd) = (*cmd)->next;
-	(*i)++;
-	(*cmd)->fd_out = 1;
-	*j = 0;
-}
-
-void	boucle_norm(t_node **cur, t_cmd **cmd, int *i, int *j)
-{
-	while (*cur)
+	while (cur)
 	{
-		if ((*cur)->type == HERE_DOC)
-		{
-			here_doc(cur, cmd);
+		if (cur->type == HERE_DOC && here_doc(&cur, &cmd))
 			continue ;
-		}
-		if ((*cur)->type == REDIR_IN || (*cur)->type == REDIR_OUT
-			|| (*cur)->type == D_REDIR_OUT)
-		{
-			check_next_next(*cur);
-			redirect(cur, *cmd);
+		if ((cur->type == REDIR_IN || cur->type == REDIR_OUT
+				|| cur->type == D_REDIR_OUT)
+			&& check_next_next(cur) && redirect(&cur, cmd))
 			continue ;
+		if (cur->type == PIPE_LINE && ++i)
+		{
+			cmd->cmd = ft_calloc(1, sizeof(char *) * (j + 1));
+			cmd->next = ft_calloc(1, sizeof(t_cmd));
+			cmd = cmd->next;
+			cmd->fd_out = 1;
+			j = 0;
 		}
-		if ((*cur)->type == PIPE_LINE)
-			inside_if(cmd, i, j);
 		else
-			(*j)++;
-		(*cur) = (*cur)->next;
+			j++;
+		cur = cur->next;
 	}
+	cmd->cmd = ft_calloc(sizeof(char *), (j + 1));
+}
+
+t_node	*create_cmd(t_lexer *lx, t_cmd *cmd)
+{
+	t_node	*cur;
+
+	cur = lx->head;
+	cmd->fd_out = 1;
+	treat_cmd(cur, cmd, 0, 0);
+	return (lx->head);
 }

@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:15:30 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/11 04:36:04 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/12 00:12:19 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 # include <string.h>
 # include <unistd.h>
 
-int						g_exit_status;
+int	g_exit_status;
 
 enum					e_state
 {
@@ -53,25 +53,25 @@ enum					e_token
 	REDIR_IN = '<',
 };
 /*-----------yy---------*/
-typedef enum
+typedef enum e_s
 {
 	OUT_NONE,
 	WRITEOUT,
 	APPENDOUT
-}						out_redirs;
+}	t_outredirs;
 
-typedef enum
+typedef enum e_p
 {
 	IN_NONE,
 	READIN,
 	HEREDOC
-}						in_redirs;
+}	t_inredirs;
 
 typedef struct s_redir
 {
-	char *in_file;  // linked list or array of strings
-	char *out_file; // linked list or array of strings
-	char *app_file; // linked list or array of strings
+	char	*in_file;
+	char	*out_file;
+	char	*app_file;
 }						t_redir;
 
 /*-----------yy---------*/
@@ -83,35 +83,28 @@ typedef struct envirement
 	struct envirement	*prev;
 }						t_env;
 
-// typedef struct c {
-//     char** argv;
-//     int in;
-//     int out;
-//     int has_pipe;
-
-//     // redirections l8r
-// } c
-
-// ls -la > ok.txt > ok2.txt > ok3.txt | cat -e
-typedef struct s_cmd
+typedef struct s_cmd 
 {
-	char **cmd; // argv: {"cat", "-e", NULL"}
-	char				*cmd_path;
-	int argc;     // 2
-	int fd_in;    // 0
-	int fd_out;   // 1
-	int has_pipe; // 0
-	int					child_pid;
-	// >> ola >
-	out_redirs out_redir_type; // out_redir = WRITEOUT
-								// << ola <
-	in_redirs in_redir_type;   // 0
-	char *in_file;             // NULL
-	char *out_file;            // ok3.txt
-	int					herdoc_fd;
-	t_env *env; // envierement
-	struct s_cmd		*next;
-}						t_cmd;
+	char			**cmd;
+	char			*cmd_path;
+	int				argc;
+	int				fd_in;
+	int				fd_out;
+	int				has_pipe;
+	char			*raw_path;
+	char			**path_arr;
+	int				i;
+	char			*fwd_slash;
+	char			*abs_path;
+	int				child_pid;
+	t_outredirs		out_redir_type;
+	t_inredirs		in_redir_type;
+	char			*in_file;
+	char			*out_file;
+	int				herdoc_fd; 
+	t_env			*env;
+	struct s_cmd	*next;
+}t_cmd;
 
 typedef struct t_node
 {
@@ -144,6 +137,8 @@ int						ft_cd(t_cmd *cmd, int fd);
 char					**lincke_list_toaraay(t_env *env);
 int						ft_unset(t_cmd *cmd);
 size_t					ft_envsize(t_env *env);
+int						exec(t_cmd *cmd, char **env, int **pipe_fd);
+void					ft_close(t_cmd *cmd, int **pipe_fd);
 int						execution_proto(t_cmd *cmd, char **env);
 int						ft_exit(t_cmd *cmd);
 void					add_new_var(t_env *env, char **var);
@@ -157,8 +152,16 @@ char					*ft_genv(t_env *env, char *str);
 /*-----------------utils-------------------*/
 char					*ft_strdup_2(char *str, int start, int finish);
 int						ft_strcmp(char *s1, char *s2);
+void					ft_free_array(char **array);
+void					take_env(char *str, int *i, t_lexer *lx);
 int						if_token(char c);
+void					executtion(t_cmd *cmd, char **str, t_env *env);
+t_cmd					*lexer_to_cmd(t_lexer *lx);
+void					destroy_cmd(t_cmd *cmd);
+t_node					*create_cmd(t_lexer *lx, t_cmd *cmd);
+int						destroy_t_node(t_lexer *lx);
 void					boucle_norm(t_node **cur, t_cmd **cmd, int *i, int *j);
+int						access_check(t_cmd *cmd);
 int						ft_count_cmd(t_lexer *lx);
 int						check_space(char *line);
 void					ft_initialisation(t_lexer *lx);
@@ -170,14 +173,19 @@ void					add_node_to_lexer(t_lexer *lx, char *word,
 void					take_token(char *str, int *i, t_lexer *lx);
 int						is_alphabet(char c);
 t_cmd					*commands(t_lexer *lx);
-void					Join_node(char *content, t_node **first, t_node **last,
+t_node					*join_node(t_node **first, t_node **last,
 							enum e_state state, t_lexer *lx);
+void					incrim(t_node **cur);
 int						redir_err(t_node *ptr);
+void					give_state(t_lexer *lx);
 void					take_in_dq(t_node **cur, enum e_state state,
 							t_lexer *lx);
-void					give_state(t_node **head);
+void					give_state(t_lexer *lx);
 int						pipe_err(t_node *elem);
+void					execute_command_v2(t_cmd *cmd, char **env);
+void					execute_command_v1(t_cmd *cmd, char **env);
 int						is_digits(char c);
+int						built_in(t_cmd *cmd);
 void					take_word(char *str, int *i, t_lexer *lx);
 void					join_quotes(t_lexer *lx);
 int						ft_perr(char *str, char *token);
@@ -186,13 +194,13 @@ char					*get_token(enum e_token type);
 int						if_redirection(enum e_token type);
 void					var_from_env(t_env *env, t_lexer *lx);
 void					delete_white_space(t_lexer *lx);
-int						syntax_error(t_node **cur);
+int						syntax_error(t_lexer *lx);
 char					*get_env(t_env *env, char *str);
 void					join_in_quote_and_word(t_lexer *lx);
 t_node					*skip_spaces(t_node *elem, char direction);
 int						lexer(char *str, t_lexer *lx, t_env *env);
 void					ft_print_lexer(t_node **head);
-int						ft_strcmp_EOF(char *s1, char *s2);
+int						ft_strcmp_eof(char *s1, char *s2);
 void					free_list(t_lexer *lst);
 /*-----------ENVIRENEMENT-------------------*/
 void					take_env(char *str, int *i, t_lexer *lx);

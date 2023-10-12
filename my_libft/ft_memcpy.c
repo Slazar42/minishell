@@ -6,11 +6,11 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/02 19:18:49 by slazar            #+#    #+#             */
-/*   Updated: 2022/10/20 15:42:22 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/11 23:13:09 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"libft.h"
+#include "libft.h"
 
 void	*ft_memcpy(void *dst, const void *src, size_t n)
 {

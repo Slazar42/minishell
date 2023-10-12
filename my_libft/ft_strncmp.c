@@ -6,11 +6,11 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/08 16:02:46 by slazar            #+#    #+#             */
-/*   Updated: 2022/10/20 16:37:33 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/11 23:14:47 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"libft.h"
+#include "libft.h"
 
 int	ft_strncmp(const char *str1, const char *str2, size_t n)
 {
@@ -22,7 +22,7 @@ int	ft_strncmp(const char *str1, const char *str2, size_t n)
 	if (n == 0)
 		return (0);
 	while (*s1 && *s2 && n)
-	{	
+	{
 		if (*s1 != *s2)
 			return (*s1 - *s2);
 		s1++;

@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 11:08:28 by yberrim           #+#    #+#             */
-/*   Updated: 2023/09/21 12:51:24 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/10/11 01:01:19 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,5 @@ char	*ft_strjoin_free(char const *s1, char const *s2)
 		i++;
 	}
 	cnc[i] = 0;
-	if (s1)
-		free((char *)s1);
 	return (cnc);
 }

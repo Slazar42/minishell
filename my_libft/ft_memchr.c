@@ -6,11 +6,11 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/08 19:47:35 by slazar            #+#    #+#             */
-/*   Updated: 2022/10/27 08:12:28 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/11 23:12:19 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"libft.h"
+#include "libft.h"
 
 void	*ft_memchr(const void *str, int c, size_t n)
 {

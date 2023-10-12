@@ -5,20 +5,19 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/10 21:48:07 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/11 02:29:55 by slazar           ###   ########.fr       */
+/*   Created: 2023/10/11 22:24:08 by slazar            #+#    #+#             */
+/*   Updated: 2023/10/12 00:10:42 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	Join_node(char *content, t_node **first, t_node **last,
+t_node	*join_node(t_node **first, t_node **last,
 		enum e_state state, t_lexer *lx)
 {
 	t_node	*new;
 
-	new = malloc(sizeof(t_node));
-	new->content = content;
+	new = ft_calloc(sizeof(t_node), 1);
 	new->next = NULL;
 	new->prev = NULL;
 	new->len = ft_strlen(new->content);
@@ -35,12 +34,15 @@ void	Join_node(char *content, t_node **first, t_node **last,
 		(*last)->prev = new;
 	if (!(*first))
 		lx->head = new;
+	return (new);
 }
+
 void	take_in_dq(t_node **cur, enum e_state state, t_lexer *lx)
 {
 	char	*new_cont;
 	t_node	*tmp;
 	t_node	*ptr;
+	t_node	*p;
 
 	tmp = (*cur);
 	new_cont = ft_calloc(1, 1);
@@ -50,7 +52,8 @@ void	take_in_dq(t_node **cur, enum e_state state, t_lexer *lx)
 		new_cont = ft_strjoin(new_cont, (*cur)->content);
 		(*cur) = (*cur)->next;
 	}
-	Join_node(new_cont, &tmp->prev, cur, state, lx);
+	p = join_node(&tmp->prev, cur, state, lx);
+	p->content = new_cont;
 	while (tmp && tmp != (*cur))
 	{
 		free(tmp->content);
@@ -105,34 +108,14 @@ void	delete_white_space(t_lexer *lx)
 	}
 }
 
-int ft_strcmp_EOF(char *s1,char *s2)
+int	ft_strcmp_eof(char *s1, char *s2)
 {
-	int i;
+	int	i;
+
 	i = 0;
 	while (s1[i] && s2[i] && s1[i] == s2[i])
 		i++;
-	if(!s1[i] && !s2[i])
+	if (!s1[i] && !s2[i])
 		return (0);
 	return (1);
-}
-
-char	*get_env(t_env *env, char *str)
-{
-	t_env	*cur;
-	char	*s;
-
-	s = ft_strdup(str + 1);
-	free(str);
-	cur = env;
-	while (cur)
-	{
-		if (!ft_strcmp_EOF(cur->name, (str + 1)))
-		{
-			free(s);	
-			return (cur->value);
-		}
-		cur = cur->next;
-	}
-	free(s);
-	return (NULL);
 }

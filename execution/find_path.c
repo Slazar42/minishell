@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 16:18:37 by yberrim           #+#    #+#             */
-/*   Updated: 2023/10/10 16:06:10 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/10/11 00:39:37 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ void	free_double(char **str)
 	int	i;
 
 	i = 0;
+	if (!str)
+		return ;
 	while (str[i])
 	{
 		free(str[i]);
@@ -45,33 +47,28 @@ int	chek_path(char *cmd)
 
 char	*find_abs_path(t_env *env, char *cmd)
 {
-	char	*raw_path;
-	char	**path_arr;
-	int		i;
-	char	*fwd_slash;
-	char	*abs_path;
+	t_cmd	c;
 
-	i = 0;
-	raw_path = ft_genv(env, "PATH");
-	path_arr = ft_split(raw_path, ':');
-	if(chek_path(cmd) == 1)
+	c.i = 0;
+	c.raw_path = ft_genv(env, "PATH");
+	c.path_arr = ft_split(c.raw_path, ':');
+	if (chek_path(cmd) == 1)
 	{
-		free_double(path_arr);
+		free_double(c.path_arr);
 		return (cmd);
 	}
-	while (path_arr && path_arr[i])
+	while (c.path_arr && c.path_arr[c.i])
 	{
-		fwd_slash = ft_strjoin(ft_strdup(path_arr[i]), "/");
-		abs_path = ft_strjoin(fwd_slash, cmd);
-		// free(fwd_slash);
-		if (access(abs_path, F_OK) == 0)
-		{		
-			free_double(path_arr);
-			return (abs_path);
+		c.fwd_slash = ft_strjoin(ft_strdup(c.path_arr[c.i]), "/");
+		c.abs_path = ft_strjoin(c.fwd_slash, cmd);
+		if (access(c.abs_path, F_OK) == 0)
+		{
+			free_double(c.path_arr);
+			return (c.abs_path);
 		}
-		free(abs_path);
-		i++;
+		free(c.abs_path);
+		c.i++;
 	}
-	free_double(path_arr);
+	free_double(c.path_arr);
 	return (NULL);
 }

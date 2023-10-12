@@ -6,11 +6,11 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 20:08:23 by slazar            #+#    #+#             */
-/*   Updated: 2022/10/24 20:40:49 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/11 23:14:04 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"libft.h"
+#include "libft.h"
 
 void	ft_putendl_fd(char *s, int fd)
 {

@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 21:50:34 by yberrim           #+#    #+#             */
-/*   Updated: 2023/10/10 17:04:54 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/10/11 01:00:44 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,6 @@ int	ft_export(t_cmd *cmd)
 	var = NULL;
 	if (cmd->cmd[1] == NULL)
 	{
-		// for(int j = 0; cmd->cmd[j]; j++)
-		// 	printf("%s\n", cmd->cmd[j]);
 		print_env(cmd, cmd->env, cmd->cmd[0]);
 		return (0);
 	}

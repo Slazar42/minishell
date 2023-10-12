@@ -5,21 +5,12 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/10 21:47:18 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/11 02:24:17 by slazar           ###   ########.fr       */
+/*   Created: 2023/10/11 22:18:25 by slazar            #+#    #+#             */
+/*   Updated: 2023/10/11 22:20:25 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-int	ft_perr(char *str, char *token)
-{
-	write(1, str, ft_strlen(str));
-	if (token)
-		write(1, token, ft_strlen(token));
-	write(1, "\n", 1);
-	return (1);
-}
 
 char	*get_token(enum e_token type)
 {
@@ -59,30 +50,31 @@ t_node	*check_quotes(t_node **node, enum e_token quote)
 	return (*node);
 }
 
-int	syntax_error(t_node **cur)
+int	syntax_error(t_lexer *lst)
 {
-	while ((*cur))
+	t_node	*cur;
+
+	cur = lst->head;
+	while (cur)
 	{
-		if ((*cur)->type == PIPE_LINE)
+		if (cur->type == PIPE_LINE)
 		{
-			if (pipe_err((*cur)))
+			if (pipe_err(cur))
 				return (ft_perr("minishell: syntax error near "
-								"unexpected token `|'",
-								0));
+						"unexpected token `|'", 0));
 		}
-		else if (if_redirection((*cur)->type))
+		else if (if_redirection(cur->type))
 		{
-			if (redir_err((*cur)))
+			if (redir_err(cur))
 				return (ft_perr("minishell: syntax error near "
-								"unexpected token ",
-								get_token((*cur)->type)));
+						"unexpected token ", get_token(cur->type)));
 		}
-		else if ((*cur)->type == DOUBLE_QUOTE || (*cur)->type == QOUTE)
+		else if (cur->type == DOUBLE_QUOTE || cur->type == QOUTE)
 		{
-			if (!check_quotes(&(*cur), (*cur)->type))
+			if (!check_quotes(&cur, cur->type))
 				return (1);
 		}
-		(*cur) = (*cur)->next;
+		cur = cur->next;
 	}
 	return (0);
 }

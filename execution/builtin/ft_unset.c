@@ -6,12 +6,11 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 19:09:26 by yberrim           #+#    #+#             */
-/*   Updated: 2023/10/10 18:37:21 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/10/11 01:00:59 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./../../minishell.h"
-
 
 void	ft_clear_env(t_env **env, t_env *prev)
 {

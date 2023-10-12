@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/11 01:54:06 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/11 02:35:23 by slazar           ###   ########.fr       */
+/*   Created: 2023/10/11 22:56:53 by slazar            #+#    #+#             */
+/*   Updated: 2023/10/11 22:57:28 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,9 @@ int	only_sp_tab(char *line)
 {
 	while (*line && (*line == ' ' || *line == '\t'))
 		line++;
-	if (*line)
-		return (1);
-	return (0);
+	if (*line == '\0')
+		return (0);
+	return (1);
 }
 
 int	check_space(char *line)

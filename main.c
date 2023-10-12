@@ -6,131 +6,80 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 19:24:41 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/11 02:06:37 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/11 23:06:52 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void ft_free_array(char **array)
+void	take_env(char *str, int *i, t_lexer *lx)
 {
-    int i;
+	int		start;
+	char	*var;
 
-    i = 0;
-    while (array[i])
-    {
-        free(array[i]);
-        i++;
-    }
-	if (array)
-    	free(array);
+	start = *i;
+	(*i)++;
+	while (!is_digits(str[*i]) || !is_alphabet(str[*i]) || str[*i] == '_'
+		|| str[*i] == '?')
+		(*i)++;
+	var = ft_strdup_2(str, start, (*i) - 1);
+	add_node_to_lexer(lx, var, ENV, GENERAL);
 }
 
-void    destroy_cmd(t_cmd *cmd)
-{
-    t_cmd    *tmp;
-
-    while (cmd)
-    {
-        tmp = cmd->next;
-        ft_free_array(cmd->cmd);
-		if (cmd->in_file)
-			free(cmd->in_file);
-		if (cmd->out_file)
-			free(cmd->out_file);
-        free(cmd);
-        cmd = tmp;
-    }
-}
-
-void destroy_t_node(t_lexer *lx)
-{
-    t_node *tmp;
-    t_node *cur;
-
-    cur = lx->head;
-    while (cur)
-    {
-        tmp = cur->next;
-		if(cur->content)
-        	free(cur->content);
-        free(cur);
-        cur = tmp;
-    }
-    lx->head = NULL;
-    lx->tail = NULL;
-}
-int access_check(t_cmd *cmd)
-{
-	t_cmd *cur;
-
-	cur = cmd;
-	while (cur)
-	{
-		if (cur->in_redir_type == APPENDOUT || cur->in_redir_type == WRITEOUT)
-		{
-			if (access(cur->in_file, F_OK) == -1)
-			{
-				printf("minishell: %s: No such file or directory\n", cur->in_file);
-				return (1);
-			}
-		}
-		else if (cur->in_redir_type == READIN)
-		{
-			if (access(cur->in_file, F_OK) == -1)
-			{
-				printf("minishell: %s: No such file or directory\n", cur->in_file);
-				return (1);
-			}
-		}
-		cur = cur->next;
-	}
-	return (0);
-}
-int	main(int __unused ac, char __unused **av, char **envirement)
+char	*get_line(t_lexer *lx)
 {
 	char	*line;
-	t_env	*env;
-	t_lexer	lx;
+
+	ft_initialisation(lx);
+	line = readline("minishell $-> ");
+	if (!line)
+		exit (1);
+	add_history(line);
+	return (line);
+}
+
+int	free_if_line(char *line)
+{
+	if (line)
+		free(line);
+	return (1);
+}
+
+void	loop(t_lexer *lx, t_env *env)
+{
+	char	*line;
+	char	**str;
 	t_cmd	*cmd;
 
 	cmd = NULL;
-	ft_variables(&env, envirement);
-	setup_signal_handlers();
+	str = NULL;
 	while (1)
 	{
-		
-		ft_initialisation(&lx);
-		line = readline("minishell $-> ");
-		if (!line)
-			return (1);
-		else if (check_space(line) == 0)
+		line = get_line(lx);
+		if (check_space(line) == 0 && free_if_line(line))
 			continue ;
-		else
+		if (lexer(line, lx, env) && destroy_t_node(lx) && free_if_line(line))
+			continue ;
+		cmd = lexer_to_cmd(lx);
+		if (access_check(cmd))
 		{
-			add_history(line);
-			if (lexer(line, &lx, env))
-				continue ;
-			else
-			{
-				join_quotes(&lx);
-				join_in_quote_and_word(&lx);
-				delete_white_space(&lx);
-				cmd = commands(&lx);
-				if(access_check(cmd))
-				{
-					destroy_cmd(cmd);
-					continue ;
-				}
-				cmd->env = env;
-				char **str = lincke_list_toaraay(env);
-				execution_proto(cmd, str);
-				free_double(str);
-				destroy_cmd(cmd);
-			}
+			destroy_cmd(cmd);
+			continue ;
 		}
-		destroy_t_node(&lx);
+		executtion(cmd, str, env);
+		destroy_t_node(lx);
 		if (line)
 			free(line);
 	}
+}
+
+int	main(int __unused ac, char __unused **av, char **envirement)
+{
+	t_env	*env;
+	t_lexer	lx;
+
+	ft_variables(&env, envirement);
+	setup_signal_handlers();
+	loop(&lx, env);
+	return (0);
 }

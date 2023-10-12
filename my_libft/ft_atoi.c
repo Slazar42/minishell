@@ -6,11 +6,11 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/06 23:03:35 by slazar            #+#    #+#             */
-/*   Updated: 2022/10/20 00:26:27 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/11 23:12:31 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"libft.h"
+#include "libft.h"
 
 int	ft_atoi(const char *str)
 {

@@ -6,7 +6,7 @@
 /*   By: yberrim <yberrim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/09 19:45:32 by yberrim           #+#    #+#             */
-/*   Updated: 2023/10/10 16:26:13 by yberrim          ###   ########.fr       */
+/*   Updated: 2023/10/11 05:11:22 by yberrim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,6 @@ char	**lincke_list_toaraay(t_env *env)
 	{
 		tmpp = ft_strjoin(ft_strdup(tmp->name), "=");
 		env_arr[i] = ft_strjoin(tmpp, tmp->value);
-		// free(tmpp);
-		// tmpp = NULL;
 		tmp = tmp->next;
 		i++;
 	}

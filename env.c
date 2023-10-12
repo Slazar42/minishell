@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 23:11:51 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/11 03:00:02 by slazar           ###   ########.fr       */
+/*   Updated: 2023/10/11 23:07:40 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,15 @@ void	ft_variables(t_env **env, char **envirement)
 	*env = head;
 }
 
+void	print_declare_export(t_env *env, t_cmd *cm)
+{
+	ft_putstr_fd("declare -x ", cm->fd_out);
+	ft_putstr_fd(env->name, cm->fd_out);
+	ft_putstr_fd("=\"", cm->fd_out);
+	ft_putstr_fd(env->value, cm->fd_out);
+	ft_putstr_fd("\"\n", cm->fd_out);
+}
+
 void	print_env(t_cmd *cm, t_env *env, char *cmd)
 {
 	while (env)
@@ -99,33 +108,14 @@ void	print_env(t_cmd *cm, t_env *env, char *cmd)
 		if (ft_strcmp(cmd, "export") == 0)
 		{
 			if (env->value && ft_strlen(env->value) > 0)
-			{
-				ft_putstr_fd("declare -x ", cm->fd_out);
-				ft_putstr_fd(env->name, cm->fd_out);
-				ft_putstr_fd("=\"", cm->fd_out);
-				ft_putstr_fd(env->value, cm->fd_out);
-				ft_putstr_fd("\"\n", cm->fd_out);
-			}
+				print_declare_export(env, cm);
 			else
 			{
 				ft_putstr_fd("declare -x ", cm->fd_out);
 				ft_putstr_fd(env->name, cm->fd_out);
-				ft_putstr_fd("=\"\"\n", cm->fd_out);
+				ft_putstr_fd("\n", cm->fd_out);
 			}
 		}
 		env = env->next;
 	}
-}
-
-void	take_env(char *str, int *i, t_lexer *lx)
-{
-	int start;
-	char *var;
-	start = *i;
-	(*i)++;
-	while (!is_digits(str[*i]) || !is_alphabet(str[*i]) || str[*i] == '_'
-		|| str[*i] == '?')
-		(*i)++;
-	var = ft_strdup_2(str, start, (*i) - 1);
-	add_node_to_lexer(lx, var, ENV, GENERAL);
 }

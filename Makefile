@@ -4,11 +4,12 @@ SRCS = lexer.c main.c utils.c env.c ./execution/builtin_utils.c ./execution/buil
 		./execution/builtin/ft_echo.c ./execution/builtin/ft_cd.c ./execution/execution.c \
 		./execution/builtin/ft_export.c  ./execution/builtin/ft_unset.c ./execution/builtin/ft_extit.c \
 		./execution/builtin/export_utils.c ./execution/find_path.c ./execution/redirection.c \
-		./execution/path_utils.c lexer_2.c lexer_3.c lexer_4.c lexer_5.c utils_2.c utils_3.c utils_4.c \
+		./execution/path_utils.c  lexer_2.c lexer_3.c lexer_4.c lexer_5.c \
+		./execution/exex_utils.c utils_2.c utils_3.c utils_4.c utils_5.c lexer_6.c \
 
 CC = cc
 
-CFLAGS = -Wall -Werror -Wextra # -fsanitize=address -g
+CFLAGS = -Wall -Werror -Wextra 
 GG = -lreadline 
 LDFLAGS="-L/Users/yberrim/.brew/opt/readline/lib"
 CPPFLAGS="-I/Users/yberrim/.brew/opt/readline/include"
@@ -32,4 +33,4 @@ fclean : clean libft_clean
 	rm -rf $(NAME)
 
 re : fclean all
-.PHONY = libft libft_clean libft_re
+.PHONY = libft libft_clean libft_re all clean fclean re

@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/10 21:43:49 by slazar            #+#    #+#             */
-/*   Updated: 2023/10/11 05:38:07 by slazar           ###   ########.fr       */
+/*   Created: 2023/10/11 22:18:29 by slazar            #+#    #+#             */
+/*   Updated: 2023/10/11 23:08:37 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,16 +37,8 @@ void	add_node_to_lexer(t_lexer *lx, char *word, enum e_token token,
 	lx->size += 1;
 }
 
-void	take_token(char *str, int *i, t_lexer *lx)
+void	check_token(char *str, int *i, t_lexer *lx, char *token)
 {
-	char	*token;
-
-	if (str[*i] == ENV)
-	{
-		take_env(str, i, lx);
-		return ;
-	}
-	token = ft_strdup_2(str, *i, *i);
 	if (str[*i] == WHITE_SPACE)
 		add_node_to_lexer(lx, token, WHITE_SPACE, GENERAL);
 	else if (str[*i] == NEW_LINE)
@@ -67,7 +59,20 @@ void	take_token(char *str, int *i, t_lexer *lx)
 	else if (str[*i] == REDIR_OUT && str[(*i) + 1] != REDIR_OUT && str[(*i)
 			- 1] != REDIR_OUT)
 		add_node_to_lexer(lx, token, REDIR_OUT, GENERAL);
-	else if (str[*i] == REDIR_OUT && str[(*i) + 1] == REDIR_OUT)
+}
+
+void	take_token(char *str, int *i, t_lexer *lx)
+{
+	char	*token;
+
+	if (str[*i] == ENV)
+	{
+		take_env(str, i, lx);
+		return ;
+	}
+	token = ft_strdup_2(str, *i, *i);
+	check_token(str, i, lx, token);
+	if (str[*i] == REDIR_OUT && str[(*i) + 1] == REDIR_OUT)
 	{
 		add_node_to_lexer(lx, ft_strdup(">>"), D_REDIR_OUT, GENERAL);
 		free(token);
